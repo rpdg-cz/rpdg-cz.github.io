@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://rpdg-cz.github.io/</id>
     <title>rpdg-cz&apos;s blog</title>
-    <updated>2021-05-09T11:29:41.039Z</updated>
+    <updated>2021-05-16T13:03:28.963Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://rpdg-cz.github.io/"/>
     <link rel="self" href="https://rpdg-cz.github.io/atom.xml"/>
@@ -10,6 +10,321 @@
     <logo>https://rpdg-cz.github.io/images/avatar.png</logo>
     <icon>https://rpdg-cz.github.io/favicon.ico</icon>
     <rights>All rights reserved 2021, rpdg-cz&apos;s blog</rights>
+    <entry>
+        <title type="html"><![CDATA[A*与IDA*]]></title>
+        <id>https://rpdg-cz.github.io/post/ayu-ida/</id>
+        <link href="https://rpdg-cz.github.io/post/ayu-ida/">
+        </link>
+        <updated>2021-05-16T07:58:36.000Z</updated>
+        <content type="html"><![CDATA[<p><span class="katex"><span class="katex-mathml"><math><semantics><mrow><msup><mi>A</mi><mo>∗</mo></msup></mrow><annotation encoding="application/x-tex">A^*</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.688696em;vertical-align:0em;"></span><span class="mord"><span class="mord mathdefault">A</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.688696em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mbin mtight">∗</span></span></span></span></span></span></span></span></span></span></span>和<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>I</mi><mi>D</mi><msup><mi>A</mi><mo>∗</mo></msup></mrow><annotation encoding="application/x-tex">IDA^*</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.688696em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.07847em;">I</span><span class="mord mathdefault" style="margin-right:0.02778em;">D</span><span class="mord"><span class="mord mathdefault">A</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.688696em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mbin mtight">∗</span></span></span></span></span></span></span></span></span></span></span>是一种搜索算法</p>
+<h1 id="a"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><msup><mi>A</mi><mo>∗</mo></msup></mrow><annotation encoding="application/x-tex">A^*</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.688696em;vertical-align:0em;"></span><span class="mord"><span class="mord mathdefault">A</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.688696em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mbin mtight">∗</span></span></span></span></span></span></span></span></span></span></span></h1>
+<p>首先不得不提优先队列的BFS算法：<br>
+就是每次都取出优先队列（二叉堆）顶部的状态，用这个状态去拓展然后得到最优解的算法<br>
+如果我们构造一个函数<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>h</mi><mo>(</mo><mi>s</mi><mi>t</mi><mi>a</mi><mi>t</mi><mi>e</mi><mo>)</mo></mrow><annotation encoding="application/x-tex">h(state)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault">h</span><span class="mopen">(</span><span class="mord mathdefault">s</span><span class="mord mathdefault">t</span><span class="mord mathdefault">a</span><span class="mord mathdefault">t</span><span class="mord mathdefault">e</span><span class="mclose">)</span></span></span></span>指当前状态与最终状态的估计代价，以及<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>g</mi><mo>(</mo><mi>s</mi><mi>t</mi><mi>a</mi><mi>t</mi><mi>e</mi><mo>)</mo></mrow><annotation encoding="application/x-tex">g(state)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.03588em;">g</span><span class="mopen">(</span><span class="mord mathdefault">s</span><span class="mord mathdefault">t</span><span class="mord mathdefault">a</span><span class="mord mathdefault">t</span><span class="mord mathdefault">e</span><span class="mclose">)</span></span></span></span>指以走过的状态设估价函数<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>f</mi><mo>(</mo><mi>s</mi><mi>t</mi><mi>a</mi><mi>t</mi><mi>e</mi><mo>)</mo><mo>=</mo><mi>g</mi><mo>(</mo><mi>s</mi><mi>t</mi><mi>a</mi><mi>t</mi><mi>e</mi><mo>)</mo><mo>+</mo><mi>h</mi><mo>(</mo><mi>s</mi><mi>t</mi><mi>a</mi><mi>t</mi><mi>e</mi><mo>)</mo></mrow><annotation encoding="application/x-tex">f(state)=g(state)+h(state)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.10764em;">f</span><span class="mopen">(</span><span class="mord mathdefault">s</span><span class="mord mathdefault">t</span><span class="mord mathdefault">a</span><span class="mord mathdefault">t</span><span class="mord mathdefault">e</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.03588em;">g</span><span class="mopen">(</span><span class="mord mathdefault">s</span><span class="mord mathdefault">t</span><span class="mord mathdefault">a</span><span class="mord mathdefault">t</span><span class="mord mathdefault">e</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault">h</span><span class="mopen">(</span><span class="mord mathdefault">s</span><span class="mord mathdefault">t</span><span class="mord mathdefault">a</span><span class="mord mathdefault">t</span><span class="mord mathdefault">e</span><span class="mclose">)</span></span></span></span>，将估价函数作为关键字扔入堆中，每次去除估价函数托展<br>
+不难得出该估价一定是小于等于于实际的<br>
+因为如果估价函数如果大于实际函数话，那么最优解就会因估价过大而不被取出，程序就一直在非最优的道路上拓展，最终的答案就是非最优答案。<br>
+当<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>f</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">f=0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8888799999999999em;vertical-align:-0.19444em;"></span><span class="mord mathdefault" style="margin-right:0.10764em;">f</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">0</span></span></span></span>时，<span class="katex"><span class="katex-mathml"><math><semantics><mrow><msup><mi>A</mi><mo>∗</mo></msup></mrow><annotation encoding="application/x-tex">A^*</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.688696em;vertical-align:0em;"></span><span class="mord"><span class="mord mathdefault">A</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.688696em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mbin mtight">∗</span></span></span></span></span></span></span></span></span></span></span>相当于普通的BFS，估价函数设计的优劣，关乎程序的快慢<br>
+<span class="katex"><span class="katex-mathml"><math><semantics><mrow><msup><mi>A</mi><mo>∗</mo></msup></mrow><annotation encoding="application/x-tex">A^*</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.688696em;vertical-align:0em;"></span><span class="mord"><span class="mord mathdefault">A</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.688696em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mbin mtight">∗</span></span></span></span></span></span></span></span></span></span></span>的代码大致为:</p>
+<pre><code>void bfs() {
+    prioriry_queue &lt;int&gt; q;
+    加入初始状态
+    while(q.size()) {
+        取堆顶
+        拓展 {
+            ...
+        }
+    }
+}
+</code></pre>
+<h2 id="八数码问题"><a href="https://www.luogu.com.cn/problem/P1379">八数码问题</a></h2>
+<p>定义估价函数为当前状态与目标状态差异的个数</p>
+<pre><code class="language-cpp">#include&lt;bits/stdc++.h&gt;
+#define ll long long
+#define rgi register int
+#pragma comment(linker, &quot;/STACK:16777216&quot;)
+using namespace std;
+int dx[4]={1,-1,0,0},dy[4]={0,0,1,-1};
+inline ll read() {
+	ll s=1,a=0;
+	char c=getchar();
+	while(!isdigit(c)) {
+		if(c=='-') s=-s;
+		c=getchar();
+	}
+	while(isdigit(c)) {
+		a=a*10+c-'0';
+		c=getchar();
+	}
+	return s*a;
+}
+struct node {
+	int a[5][5];
+	bool operator &lt; (node x) const {
+		for(int i=1; i&lt;=3; i++) {
+			for(int j=1; j&lt;=3; j++) {
+				return a[i][j]&lt;x.a[i][j];
+			}
+		}
+		return false;
+	}
+} f,g;
+set &lt;int&gt; b;
+int h(node x) {
+	int res=0;
+	for(int i=1; i&lt;=3; i++) {
+		for(int j=1; j&lt;=3; j++) {
+			if(x.a[i][j]!=g.a[i][j]) res++;
+		}
+	}
+	return res;
+}
+int ee(node x) {
+	int res=0;
+	for(int i=1;i&lt;=3;i++) {
+		for(int j=1;j&lt;=3;j++) {
+			res=res*10+x.a[i][j];
+		}
+	}
+	return res;
+}
+struct data {
+	node sp;
+	int t;
+	bool operator &lt; (data x) const {
+		return h(sp)+t&gt;h(x.sp)+x.t;
+	}
+};
+bool ch(int x) {
+	return x&gt;=1&amp;&amp;x&lt;=3;
+}
+void bfs() {
+	priority_queue &lt;data&gt; q;
+	q.push({f,0});
+	while(q.size()) {
+		data be=q.top();
+		q.pop();
+		if(!h(be.sp)) {
+			printf(&quot;%d\n&quot;,be.t);
+			return;
+		}
+		int sx,sy;
+		for(int i=1;i&lt;=3;i++) {
+			for(int j=1;j&lt;=3;j++) {
+				if(!be.sp.a[i][j]) sx=i,sy=j;
+			}
+		}
+		for(int i=0;i&lt;4;i++) {
+			int rx=sx+dx[i],ry=sy+dy[i];
+			if(ch(rx)&amp;&amp;ch(ry)) {
+				swap(be.sp.a[sx][sy],be.sp.a[rx][ry]);
+				if(!b.count(ee(be.sp))) b.insert(ee(be.sp)),q.push({be.sp,be.t+1});
+				swap(be.sp.a[sx][sy],be.sp.a[rx][ry]);
+			}
+		}
+	}
+}
+int main() {
+	for(int i=1;i&lt;=3;i++) {
+		for(int j=1;j&lt;=3;j++) {
+			char c;
+			cin&gt;&gt;c;
+			f.a[i][j]=c-'0';
+		}
+	}
+	g.a[1][1]=1,g.a[1][2]=2,g.a[1][3]=3,g.a[2][1]=8,g.a[2][2]=0,g.a[2][3]=4,g.a[3][1]=7,g.a[3][2]=6,g.a[3][3]=5;
+	bfs();
+	return 0;
+}
+</code></pre>
+<h1 id="ida"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>I</mi><mi>D</mi><msup><mi>A</mi><mo>∗</mo></msup></mrow><annotation encoding="application/x-tex">IDA^*</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.688696em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.07847em;">I</span><span class="mord mathdefault" style="margin-right:0.02778em;">D</span><span class="mord"><span class="mord mathdefault">A</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.688696em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mbin mtight">∗</span></span></span></span></span></span></span></span></span></span></span></h1>
+<p><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>I</mi><mi>D</mi><msup><mi>A</mi><mo>∗</mo></msup></mrow><annotation encoding="application/x-tex">IDA^*</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.688696em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.07847em;">I</span><span class="mord mathdefault" style="margin-right:0.02778em;">D</span><span class="mord"><span class="mord mathdefault">A</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.688696em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mbin mtight">∗</span></span></span></span></span></span></span></span></span></span></span>即是加了估价函数的迭代加深<br>
+<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>I</mi><mi>D</mi><msup><mi>A</mi><mo>∗</mo></msup></mrow><annotation encoding="application/x-tex">IDA^*</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.688696em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.07847em;">I</span><span class="mord mathdefault" style="margin-right:0.02778em;">D</span><span class="mord"><span class="mord mathdefault">A</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.688696em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mbin mtight">∗</span></span></span></span></span></span></span></span></span></span></span> 比<span class="katex"><span class="katex-mathml"><math><semantics><mrow><msup><mi>A</mi><mo>∗</mo></msup></mrow><annotation encoding="application/x-tex">A^*</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.688696em;vertical-align:0em;"></span><span class="mord"><span class="mord mathdefault">A</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.688696em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mbin mtight">∗</span></span></span></span></span></span></span></span></span></span></span>省空间，有时前者跟容易实现</p>
+<h2 id="骑士精神"><a href="https://www.luogu.com.cn/problem/P2324">骑士精神</a></h2>
+<p>这个和八数码问题差不多</p>
+<pre><code class="language-cpp">#include&lt;bits/stdc++.h&gt;
+using namespace std;
+inline int read() {
+	int s=1,a=0;
+	char c=getchar();
+	while(!isdigit(c)) {
+		if(c=='-') s=-s;
+		c=getchar();
+	}
+	while(isdigit(c)) {
+		a=a*10+c-'0';
+		c=getchar();
+	}
+	return s*a;
+}
+int dx[8]={1,-1,2,-2,1,-1,2,-2};
+int dy[8]={2,2,1,1,-2,-2,-1,-1};
+struct node {
+	int a[7][7];
+	void init() {
+		memset(a,0,sizeof(a));
+	}
+} f,g;
+int h() {
+	int res=0;
+	for(int i=1;i&lt;=5;i++) {
+		for(int j=1;j&lt;=5;j++) {
+			if(f.a[i][j]!=g.a[i][j]) res++;
+		}
+	}
+	return res;
+}
+bool flg;
+bool ch(int x) {
+	return x&gt;=1&amp;&amp;x&lt;=5;
+}
+void dfs(int dep,int x,int y,int maxdep) {
+	if(flg) return;
+	if(dep+h()&gt;maxdep) return;
+	if(!h()) {
+		printf(&quot;%d\n&quot;,dep);
+		flg=1;
+		return;
+	}
+	for(int i=0;i&lt;8;i++) {
+		int sx=x+dx[i],sy=y+dy[i];
+		if(ch(sx)&amp;&amp;ch(sy)) {
+			swap(f.a[x][y],f.a[sx][sy]);
+			dfs(dep+1,sx,sy,maxdep);
+			swap(f.a[x][y],f.a[sx][sy]);
+		}
+	}
+}
+int main() {
+	int test;
+	test=read();
+	for(int i=1;i&lt;=5;i++) {
+		for(int j=1;j&lt;=5;j++) {
+			if((i&lt;3&amp;&amp;j&gt;=i)||(i&gt;=3&amp;&amp;j&gt;i)) g.a[i][j]=1;
+			else if(i==3&amp;&amp;j==3) g.a[i][j]=2;
+			else g.a[i][j]=0;
+		}
+	}
+	while(test--) {
+		f.init();
+		int ddx,ddy;
+		for(int i=1;i&lt;=5;i++) {
+			for(int j=1;j&lt;=5;j++) {
+				char ccc;
+				cin&gt;&gt;ccc;
+				if(ccc=='*') f.a[i][j]=2,ddx=i,ddy=j;
+				else f.a[i][j]=ccc-'0';
+			}
+		}
+		if(!h()) {
+			puts(&quot;0&quot;);
+			continue;
+		}
+		flg=0;
+		for(int i=1;i&lt;=16&amp;&amp;!flg;i++) {
+			dfs(0,ddx,ddy,i);
+		}
+		if(!flg) puts(&quot;-1&quot;);
+	}
+	return 0;
+}
+</code></pre>
+<h2 id="the-rotation-game"><a href="https://www.luogu.com.cn/problem/UVA1343">The Rotation Game</a></h2>
+<p>定义估价函数为当前中心八块与全部以当前中心出现次数最多的数字的差异<br>
+枚举每个操作转移，回溯时要进行相反的操作</p>
+<pre><code class="language-cpp">#include&lt;bits/stdc++.h&gt;
+#define ll long long
+#define rgi register int
+#pragma comment(linker, &quot;/STACK:16777216&quot;)
+using namespace std;
+const int N=9;
+inline ll read() {
+	ll s=1,a=0;
+	char c=getchar();
+	while(!isdigit(c)) {
+		if(c=='-') s=-s;
+		c=getchar();
+	}
+	while(isdigit(c)) {
+		a=a*10+c-'0';
+		c=getchar();
+	}
+	return s*a;
+}
+char ccc[31];
+int mp[N*N];
+int po[8][7]= {
+	{0,2,6,11,15,20,22},
+	{1,3,8,12,17,21,23},
+	{10,9,8,7,6,5,4},
+	{19,18,17,16,15,14,13},
+	{23,21,17,12,8,3,1},
+	{22,20,15,11,6,2,0},
+	{13,14,15,16,17,18,19},
+	{4,5,6,7,8,9,10}
+};
+int cen[9]= {6,7,8,11,12,15,16,17};
+int h() {
+	int cnt[3]= {0,0,0},maxchu=0;
+	for(int i=0; i&lt;8; i++) {
+		cnt[mp[cen[i]]-1]++;
+		maxchu=max(maxchu,cnt[mp[cen[i]]-1]);
+	}
+	return 8-maxchu;
+}
+int duiyin[9]= {5,4,7,6,1,0,3,2,-1};
+void change(int x) {
+	int kk=mp[po[x][0]];
+	for(int i=0; i&lt;6; i++) {
+		mp[po[x][i]]=mp[po[x][i+1]];
+	}
+	mp[po[x][6]]=kk;
+}
+bool flg;
+void dfs(int dep,int maxdep,int opt) {
+	if(flg) return;
+	if(dep&gt;maxdep||dep+h()&gt;maxdep) return;
+//	cout&lt;&lt;dep&lt;&lt;endl;
+	if(!h()) {
+		flg=1;
+		for(int i=0; i&lt;dep; i++) {
+			cout&lt;&lt;ccc[i];
+		}
+		cout&lt;&lt;endl;
+		cout&lt;&lt;mp[cen[0]]&lt;&lt;endl;
+		return;
+	}
+	for(int i=0; i&lt;8; i++) {
+		if(duiyin[opt]!=i) {
+			change(i);
+			ccc[dep]=i+'A';
+			dfs(dep+1,maxdep,i);
+			change(duiyin[i]);
+		}
+	}
+}
+int main() {
+	while(true) {
+		int ssh=read();
+		if(ssh==0) break;
+		mp[0]=ssh;
+		for(int i=1; i&lt;24; i++) {
+			mp[i]=read();
+		}
+		if(!h()) {
+			puts(&quot;No moves needed&quot;);
+			printf(&quot;%d\n&quot;,mp[cen[0]]);
+			continue;
+		}
+		flg=0;
+		for(int mm=1; !flg; mm++) {
+			dfs(0,mm,8);
+		}
+	}
+	return 0;
+}
+</code></pre>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[单调队列优化Dp]]></title>
         <id>https://rpdg-cz.github.io/post/dan-diao-dui-lie-you-hua-dp/</id>
