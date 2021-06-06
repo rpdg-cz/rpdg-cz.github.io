@@ -1,0 +1,288 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CF1163D 	Mysterious Code | rpdg-cz&#39;s blog</title>
+<link rel="shortcut icon" href="https://rpdg-cz.github.io//favicon.ico?v=1622973730174">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
+<link rel="stylesheet" href="https://rpdg-cz.github.io//styles/main.css">
+<link rel="alternate" type="application/atom+xml" title="CF1163D 	Mysterious Code | rpdg-cz&#39;s blog - Atom Feed" href="https://rpdg-cz.github.io//atom.xml">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700">
+
+
+
+    <meta name="description" content="一道十分可做的纸糊串题
+题面
+首先涉及到匹配那一定用AC自动机来解决
+可以想到在s串的末尾节点上打个1，t串末尾打个-1，那么把c串在上面跑匹配，最终统计的结果就是s的出现次数−t的出现次数s的出现次数-t的出现次数s的出现次数−t的出现次..." />
+    <meta name="keywords" content="" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+    <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://rpdg-cz.github.io/">
+  <img class="avatar" src="https://rpdg-cz.github.io//images/avatar.png?v=1622973730174" alt="">
+  </a>
+  <h1 class="site-title">
+    rpdg-cz&#39;s blog
+  </h1>
+  <p class="site-description">
+    red problem is good. SSH is very good.
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              CF1163D 	Mysterious Code
+            </h2>
+            <div class="post-info">
+              <span>
+                2021-06-06
+              </span>
+              <span>
+                4 min read
+              </span>
+              
+            </div>
+            
+            <div class="post-content-wrapper">
+              <div class="post-content">
+                <p>一道十分可做的纸糊串题<br>
+<a href="https://codeforces.com/contest/1163/problem/d">题面</a><br>
+首先涉及到匹配那一定用AC自动机来解决<br>
+可以想到在s串的末尾节点上打个1，t串末尾打个-1，那么把c串在上面跑匹配，最终统计的结果就是<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>s</mi><mi mathvariant="normal">的</mi><mi mathvariant="normal">出</mi><mi mathvariant="normal">现</mi><mi mathvariant="normal">次</mi><mi mathvariant="normal">数</mi><mo>−</mo><mi>t</mi><mi mathvariant="normal">的</mi><mi mathvariant="normal">出</mi><mi mathvariant="normal">现</mi><mi mathvariant="normal">次</mi><mi mathvariant="normal">数</mi></mrow><annotation encoding="application/x-tex">s的出现次数-t的出现次数</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.66666em;vertical-align:-0.08333em;"></span><span class="mord mathdefault">s</span><span class="mord cjk_fallback">的</span><span class="mord cjk_fallback">出</span><span class="mord cjk_fallback">现</span><span class="mord cjk_fallback">次</span><span class="mord cjk_fallback">数</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.61508em;vertical-align:0em;"></span><span class="mord mathdefault">t</span><span class="mord cjk_fallback">的</span><span class="mord cjk_fallback">出</span><span class="mord cjk_fallback">现</span><span class="mord cjk_fallback">次</span><span class="mord cjk_fallback">数</span></span></span></span><br>
+定义状态<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>f</mi><mo>[</mo><mi>i</mi><mo>]</mo><mo>[</mo><mi>j</mi><mo>]</mo></mrow><annotation encoding="application/x-tex">f[i][j]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.10764em;">f</span><span class="mopen">[</span><span class="mord mathdefault">i</span><span class="mclose">]</span><span class="mopen">[</span><span class="mord mathdefault" style="margin-right:0.05724em;">j</span><span class="mclose">]</span></span></span></span>表示在c串的第i个位置,AC自动机上的第j个节点的最大结果<br>
+在AC自动机上跑，能匹配就跳，加上这个点的权值<br>
+但如果出现了如第二个的数据，那么我们这种做法似乎不对<br>
+因为权值统计的出现问题<br>
+我们如果只是像上述那样标记权值的话，那么第二个a只会被算一次，所以有些点也必须标记权值<br>
+自然是从哪个点来，就加上那个点的权值<br>
+代码</p>
+<pre><code class="language-cpp">#include&lt;bits/stdc++.h&gt;
+using namespace std;
+inline int read() {
+	int s=1,a=0;
+	char c=getchar();
+	while(!isdigit(c)) {
+		if(c=='-') s=-s;
+		c=getchar();
+	}
+	while(isdigit(c)) {
+		a=a*10+c-'0';
+		c=getchar();
+	}
+	return s*a;
+}
+const int N=4e3+8;
+int n;
+#define inf 0x7f7f7f7f
+struct AC {
+	int son[N][28],fail[N],cnt,w[N],bfn[N],lenth;
+	void insert(int l,string s,int opt) {
+		int p=0;
+		for(int i=0;i&lt;l;i++) {
+			char c=s[i]-'a'+1;
+			if(!son[p][c]) son[p][c]=++cnt;
+			p=son[p][c];
+		}
+		w[p]+=1*opt;
+	}
+	void bfs() {
+		queue &lt;int&gt; q;
+		bfn[++lenth]=0;
+		for(int i=1;i&lt;=26;i++) {
+			if(son[0][i]) q.push(son[0][i]),bfn[++lenth]=son[0][i];
+		}
+		while(q.size()) {
+			int p=q.front();
+			bfn[++lenth]=p;
+			q.pop();
+			for(int i=1;i&lt;=26;i++) {
+				if(son[p][i]) {
+					fail[son[p][i]]=son[fail[p]][i];
+					q.push(son[p][i]);
+				}
+				else son[p][i]=son[fail[p]][i];
+			}
+		}
+		for(int i=1;i&lt;=lenth;i++) {
+			w[bfn[i]]+=w[fail[bfn[i]]];
+		}
+	}
+} wgj;
+int f[N][N];
+string s,t;
+char c[2000];
+int main() {
+	scanf(&quot;%s&quot;,(c+1));n=strlen(c+1);
+	cin&gt;&gt;s;wgj.insert(s.size(),s,1);
+	cin&gt;&gt;t;wgj.insert(t.size(),t,-1);
+	wgj.bfs();
+	for(int i=0;i&lt;=n;i++) {
+		for(int j=0;j&lt;=wgj.cnt;j++) {
+			f[i][j]=-inf/3;
+		}
+	}
+	f[0][0]=0;
+	for(int i=0;i&lt;n;i++) {
+		for(int j=0;j&lt;=wgj.cnt;j++) {
+			if(f[i][j]==-inf/3) continue;
+			for(int ch=1;ch&lt;=26;ch++) {
+				int to=wgj.son[j][ch];
+				if(c[i+1]==ch+'a'-1||c[i+1]=='*')
+					f[i+1][to]=max(f[i+1][to],f[i][j]+wgj.w[to]);
+			}
+		}
+	}
+	int ans=-inf;
+	for(int i=0;i&lt;=wgj.cnt;i++) {
+		ans=max(ans,f[n][i]);
+	}
+	cout&lt;&lt;ans&lt;&lt;endl;
+	return 0;
+}
+</code></pre>
+
+              </div>
+              <div class="toc-container">
+                
+              </div>
+            </div>
+          </article>
+        </div>
+
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://rpdg-cz.github.io/post/ayu-ida/">
+              <h3 class="post-title">
+                A*与IDA*
+              </h3>
+            </a>
+          </div>
+        
+
+        
+          
+            <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+<div id="gitalk-container"></div>
+
+<script>
+
+  var gitalk = new Gitalk({
+    clientID: '',
+    clientSecret: '',
+    repo: '',
+    owner: '',
+    admin: [''],
+    id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false  // Facebook-like distraction free mode
+  })
+
+  gitalk.render('gitalk-container')
+
+</script>
+
+          
+
+          
+        
+
+        <div class="site-footer">
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+  <a class="rss" href="https://rpdg-cz.github.io//atom.xml" target="_blank">
+    <i class="ri-rss-line"></i> RSS
+  </a>
+</div>
+
+      </div>
+    </div>
+
+    <script>
+      hljs.initHighlightingOnLoad()
+
+      let mainNavLinks = document.querySelectorAll(".markdownIt-TOC a");
+
+      // This should probably be throttled.
+      // Especially because it triggers during smooth scrolling.
+      // https://lodash.com/docs/4.17.10#throttle
+      // You could do like...
+      // window.addEventListener("scroll", () => {
+      //    _.throttle(doThatStuff, 100);
+      // });
+      // Only not doing it here to keep this Pen dependency-free.
+
+      window.addEventListener("scroll", event => {
+        let fromTop = window.scrollY;
+
+        mainNavLinks.forEach((link, index) => {
+          let section = document.getElementById(decodeURI(link.hash).substring(1));
+          let nextSection = null
+          if (mainNavLinks[index + 1]) {
+            nextSection = document.getElementById(decodeURI(mainNavLinks[index + 1].hash).substring(1));
+          }
+          if (section.offsetTop <= fromTop) {
+            if (nextSection) {
+              if (nextSection.offsetTop > fromTop) {
+                link.classList.add("current");
+              } else {
+                link.classList.remove("current");    
+              }
+            } else {
+              link.classList.add("current");
+            }
+          } else {
+            link.classList.remove("current");
+          }
+        });
+      });
+
+    </script>
+  </body>
+</html>
