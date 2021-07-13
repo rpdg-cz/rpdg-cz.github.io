@@ -3,7 +3,7 @@
     <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>CF1163D 	Mysterious Code | rpdg-cz&#39;s blog</title>
-<link rel="shortcut icon" href="https://rpdg-cz.github.io//favicon.ico?v=1622973730174">
+<link rel="shortcut icon" href="https://rpdg-cz.github.io//favicon.ico?v=1626137686742">
 <link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
 <link rel="stylesheet" href="https://rpdg-cz.github.io//styles/main.css">
 <link rel="alternate" type="application/atom+xml" title="CF1163D 	Mysterious Code | rpdg-cz&#39;s blog - Atom Feed" href="https://rpdg-cz.github.io//atom.xml">
@@ -24,7 +24,7 @@
       <div class="main-content">
         <div class="site-header">
   <a href="https://rpdg-cz.github.io/">
-  <img class="avatar" src="https://rpdg-cz.github.io//images/avatar.png?v=1622973730174" alt="">
+  <img class="avatar" src="https://rpdg-cz.github.io//images/avatar.png?v=1626137686742" alt="">
   </a>
   <h1 class="site-title">
     rpdg-cz&#39;s blog
@@ -186,6 +186,7 @@ int main() {
 	return 0;
 }
 </code></pre>
+<p>有一个细节，就是c字符串的下标必须从1开始，因为你是通过<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>f</mi><mo>[</mo><mn>0</mn><mo>]</mo><mo>[</mo><mn>0</mn><mo>]</mo></mrow><annotation encoding="application/x-tex">f[0][0]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.10764em;">f</span><span class="mopen">[</span><span class="mord">0</span><span class="mclose">]</span><span class="mopen">[</span><span class="mord">0</span><span class="mclose">]</span></span></span></span>去更新每一个<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>f</mi><mo>[</mo><mi>i</mi><mo>]</mo><mo>[</mo><mi>j</mi><mo>]</mo></mrow><annotation encoding="application/x-tex">f[i][j]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.10764em;">f</span><span class="mopen">[</span><span class="mord mathdefault">i</span><span class="mclose">]</span><span class="mopen">[</span><span class="mord mathdefault" style="margin-right:0.05724em;">j</span><span class="mclose">]</span></span></span></span>,如果不从1开始，可能c的第一个字符的情况就更新不到</p>
 
               </div>
               <div class="toc-container">
