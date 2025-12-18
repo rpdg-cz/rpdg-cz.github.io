@@ -1,2 +1,3 @@
-# rpdg-cz.github.io
-rpdg's website
+# Advanced Algebra Calculator
+A light calculator for simple linear algebra problem
+
