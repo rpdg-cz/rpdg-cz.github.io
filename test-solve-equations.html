@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试线性方程组求解功能</title>
+    <script src="lib/matrix-operations.js"></script>
+</head>
+<body>
+    <h1>测试线性方程组求解功能</h1>
+    <div id="test-results"></div>
+
+    <script>
+        // 创建MatrixOperations实例
+        const matrixOps = new MatrixOperations();
+        
+        // 测试用例1：唯一解的线性方程组
+        console.log('测试用例1：唯一解的线性方程组');
+        const coefficients1 = [[1, 2], [3, 4]];
+        const constants1 = [5, 11];
+        
+        try {
+            const result1 = matrixOps.solveEquations(coefficients1, constants1);
+            console.log('结果:', result1);
+            document.getElementById('test-results').innerHTML += '<h2>测试用例1：唯一解</h2>' +
+                '<p>系数矩阵: [[1, 2], [3, 4]]</p>' +
+                '<p>常数项: [5, 11]</p>' +
+                '<p>解的类型: ' + result1.type + '</p>' +
+                '<p>系数矩阵的秩: ' + result1.rankA + '</p>' +
+                '<p>增广矩阵的秩: ' + result1.rankAugmented + '</p>' +
+                '<p>解: ' + JSON.stringify(result1.solution || result1.particularSolution) + '</p>';
+        } catch (error) {
+            console.error('测试用例1失败:', error);
+            document.getElementById('test-results').innerHTML += '<h2>测试用例1：唯一解（失败）</h2>' +
+                '<p>错误: ' + error.message + '</p>';
+        }
+        
+        // 测试用例2：无解的线性方程组
+        console.log('\n测试用例2：无解的线性方程组');
+        const coefficients2 = [[1, 2], [2, 4]];
+        const constants2 = [3, 5];
+        
+        try {
+            const result2 = matrixOps.solveEquations(coefficients2, constants2);
+            console.log('结果:', result2);
+            document.getElementById('test-results').innerHTML += '<h2>测试用例2：无解</h2>' +
+                '<p>系数矩阵: [[1, 2], [2, 4]]</p>' +
+                '<p>常数项: [3, 5]</p>' +
+                '<p>解的类型: ' + result2.type + '</p>' +
+                '<p>系数矩阵的秩: ' + result2.rankA + '</p>' +
+                '<p>增广矩阵的秩: ' + result2.rankAugmented + '</p>';
+        } catch (error) {
+            console.error('测试用例2失败:', error);
+            document.getElementById('test-results').innerHTML += '<h2>测试用例2：无解（失败）</h2>' +
+                '<p>错误: ' + error.message + '</p>';
+        }
+        
+        // 测试用例3：无穷解的线性方程组
+        console.log('\n测试用例3：无穷解的线性方程组');
+        const coefficients3 = [[1, 2, 3], [4, 5, 6], [7, 8, 9]];
+        const constants3 = [6, 15, 24];
+        
+        try {
+            const result3 = matrixOps.solveEquations(coefficients3, constants3);
+            console.log('结果:', result3);
+            document.getElementById('test-results').innerHTML += '<h2>测试用例3：无穷解</h2>' +
+                '<p>系数矩阵: [[1, 2, 3], [4, 5, 6], [7, 8, 9]]</p>' +
+                '<p>常数项: [6, 15, 24]</p>' +
+                '<p>解的类型: ' + result3.type + '</p>' +
+                '<p>系数矩阵的秩: ' + result3.rankA + '</p>' +
+                '<p>增广矩阵的秩: ' + result3.rankAugmented + '</p>' +
+                '<p>特解: ' + JSON.stringify(result3.particularSolution) + '</p>' +
+                '<p>基础解系: ' + JSON.stringify(result3.basisSolutions) + '</p>';
+        } catch (error) {
+            console.error('测试用例3失败:', error);
+            document.getElementById('test-results').innerHTML += '<h2>测试用例3：无穷解（失败）</h2>' +
+                '<p>错误: ' + error.message + '</p>';
+        }
+    </script>
+</body>
+</html>

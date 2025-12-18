@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>行列式计算 - 高等代数计算器</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b82f6',
+                        secondary: '#64748b',
+                        accent: '#f97316',
+                        dark: '#1e293b',
+                        light: '#f8fafc'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .matrix-input {
+                @apply min-w-[64px] h-10 text-center border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300;
+            }
+            .step-card {
+                @apply bg-white p-4 rounded-lg shadow-md mb-4 transition-all duration-300 hover:shadow-lg;
+            }
+            .btn-primary {
+                @apply bg-primary text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 hover:bg-primary/90 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary/50;
+            }
+            .btn-secondary {
+                @apply bg-secondary text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 hover:bg-secondary/90 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-secondary/50;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-light to-gray-100 min-h-screen font-sans text-dark">
+    <!-- 导航栏 -->
+    <nav class="bg-white shadow-md">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <a href="index.html" class="flex items-center space-x-2">
+                    <i class="fa fa-calculator text-primary text-2xl"></i>
+                    <h1 class="text-xl font-bold text-primary">高等代数计算器</h1>
+                </a>
+            </div>
+            <div class="hidden md:flex space-x-6">
+                <a href="index.html" class="text-secondary hover:text-primary transition-colors duration-300">主页</a>
+                <a href="index.html#features" class="text-secondary hover:text-primary transition-colors duration-300">功能</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4 py-8">
+        <div class="max-w-5xl mx-auto">
+            <div class="bg-white rounded-xl shadow-md p-6 md:p-8 mb-8">
+                <h2 class="text-2xl md:text-3xl font-bold mb-6 text-center">行列式计算</h2>
+                <p class="text-secondary text-center mb-4">输入一个2-6阶方阵，计算其行列式值</p>
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
+                    <h3 class="font-semibold text-blue-800">输入说明：</h3>
+                    <ul class="list-disc pl-6 text-blue-700">
+                        <li>支持整数输入，例如：123</li>
+                        <li>支持分数输入，格式为：分子/分母，例如：1/2、-3/4</li>
+                        <li>输入框为空时默认值为0</li>
+                    </ul>
+                </div>
+
+                <!-- 阶数选择 -->
+                <div class="mb-8">
+                    <label for="matrix-size" class="block text-secondary mb-2">选择矩阵阶数 (2-6):</label>
+                    <div class="flex items-center space-x-4">
+                        <select id="matrix-size" class="w-32 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300">
+                            <option value="2">2阶</option>
+                            <option value="3" selected>3阶</option>
+                            <option value="4">4阶</option>
+                            <option value="5">5阶</option>
+                            <option value="6">6阶</option>
+                        </select>
+                        <button id="generate-matrix" class="btn-secondary">生成矩阵</button>
+                    </div>
+                </div>
+
+                <!-- 矩阵输入区域 -->
+                <div class="mb-8">
+                    <label class="block text-secondary mb-4">请输入矩阵元素：</label>
+                    <div id="matrix-input-container" class="flex justify-center">
+                        <!-- 矩阵输入将在这里动态生成 -->
+                    </div>
+                </div>
+
+                <!-- 操作按钮 -->
+                <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+                    <button id="calculate-btn" class="btn-primary">计算行列式</button>
+                    <button id="clear-btn" class="btn-secondary">清空输入</button>
+                    <button onclick="window.location.href='index.html'" class="btn-secondary">返回主页</button>
+                </div>
+            </div>
+
+            <!-- 结果展示区域 -->
+            <div id="result-section" class="hidden">
+                <div class="bg-white rounded-xl shadow-md p-6 md:p-8 mb-8">
+                    <h3 class="text-xl font-bold mb-4">计算结果</h3>
+                    <div id="result-value" class="text-2xl font-bold text-primary mb-4 text-center"></div>
+                    <button id="show-steps-btn" class="btn-secondary">查看详细步骤</button>
+                </div>
+
+                <!-- 步骤展示区域 -->
+                <div id="steps-section" class="hidden">
+                    <div class="bg-white rounded-xl shadow-md p-6 md:p-8">
+                        <h3 class="text-xl font-bold mb-6">计算步骤</h3>
+                        <div id="steps-container" class="space-y-6"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-dark text-white py-8 mt-16">
+        <div class="container mx-auto px-4">
+            <div class="text-center">
+                <div class="flex items-center justify-center space-x-2 mb-4">
+                    <i class="fa fa-calculator text-primary text-xl"></i>
+                    <span class="font-bold text-lg">高等代数计算器</span>
+                </div>
+                <p class="text-gray-400 mb-4">© 2024 高等代数计算器. 保留所有权利.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="lib/matrix-operations.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const matrixSizeSelect = document.getElementById('matrix-size');
+            const generateMatrixBtn = document.getElementById('generate-matrix');
+            const matrixInputContainer = document.getElementById('matrix-input-container');
+            const calculateBtn = document.getElementById('calculate-btn');
+            const clearBtn = document.getElementById('clear-btn');
+            const resultSection = document.getElementById('result-section');
+            const resultValue = document.getElementById('result-value');
+            const showStepsBtn = document.getElementById('show-steps-btn');
+            const stepsSection = document.getElementById('steps-section');
+            const stepsContainer = document.getElementById('steps-container');
+            
+            let currentSteps = [];
+            
+            // 初始化3阶矩阵
+            generateMatrix(parseInt(matrixSizeSelect.value));
+            
+            // 生成矩阵输入
+            function generateMatrix(size) {
+                matrixInputContainer.innerHTML = '';
+                const matrixTable = document.createElement('table');
+                matrixTable.className = 'border-collapse';
+                
+                for (let i = 0; i < size; i++) {
+                    const row = document.createElement('tr');
+                    for (let j = 0; j < size; j++) {
+                        const cell = document.createElement('td');
+                        cell.className = 'p-1';
+                        const input = document.createElement('input');
+                        input.type = 'text';
+                        input.className = 'matrix-input';
+                        input.id = `matrix-${i}-${j}`;
+                        input.value = '';
+                        input.placeholder = '0 或 1/2';
+                        cell.appendChild(input);
+                        row.appendChild(cell);
+                    }
+                    matrixTable.appendChild(row);
+                }
+                
+                matrixInputContainer.appendChild(matrixTable);
+            }
+            
+            // 获取矩阵数据
+            function getMatrixData() {
+                const size = parseInt(matrixSizeSelect.value);
+                const matrix = [];
+                const matrixOps = new MatrixOperations();
+                
+                for (let i = 0; i < size; i++) {
+                    matrix[i] = [];
+                    for (let j = 0; j < size; j++) {
+                        const input = document.getElementById(`matrix-${i}-${j}`);
+                        const value = input.value.trim();
+                        
+                        if (!value) {
+                            // 允许空输入，默认为0
+                            matrix[i][j] = 0;
+                            continue;
+                        }
+                        
+                        // 尝试直接使用输入值（可能是分数形式）
+                        matrix[i][j] = value;
+                    }
+                }
+                
+                return matrix;
+            }
+            
+            // 渲染矩阵
+            function renderMatrix(matrix) {
+                if (!matrix) return '';
+                
+                // 创建一个临时的MatrixOperations实例用于格式化数字
+                const formatOps = new MatrixOperations();
+                
+                let html = '<div class="flex justify-center mb-2">';
+                html += '<table class="border-collapse inline-block">';
+                
+                for (let i = 0; i < matrix.length; i++) {
+                    html += '<tr>';
+                    for (let j = 0; j < matrix[i].length; j++) {
+                    html += `<td class="p-1"><div class="min-w-[56px] h-8 bg-gray-50 rounded border text-center flex items-center justify-center">${formatOps.formatNumber(matrix[i][j])}</div></td>`;
+                }
+                    html += '</tr>';
+                }
+                
+                html += '</table>';
+                html += '</div>';
+                return html;
+            }
+            
+            // 生成矩阵按钮事件
+            generateMatrixBtn.addEventListener('click', function() {
+                const size = parseInt(matrixSizeSelect.value);
+                generateMatrix(size);
+                resultSection.classList.add('hidden');
+                stepsSection.classList.add('hidden');
+            });
+            
+            // 计算按钮事件
+            calculateBtn.addEventListener('click', function() {
+                const matrix = getMatrixData();
+                
+                if (!matrix) {
+                    alert('请输入有效的数字！');
+                    return;
+                }
+                
+                // 执行计算
+                const matrixOps = new MatrixOperations();
+                matrixOps.setFormatType('rational'); // 使用有理数格式计算
+                const result = matrixOps.calculateDeterminant(matrix);
+                
+                // 显示结果
+                resultValue.textContent = `行列式值 = ${matrixOps.formatNumber(result.result)}`;
+                resultSection.classList.remove('hidden');
+                currentSteps = result.steps;
+                stepsSection.classList.add('hidden');
+            });
+            
+            // 清空按钮事件
+            clearBtn.addEventListener('click', function() {
+                const size = parseInt(matrixSizeSelect.value);
+                for (let i = 0; i < size; i++) {
+                    for (let j = 0; j < size; j++) {
+                        document.getElementById(`matrix-${i}-${j}`).value = '';
+                    }
+                }
+                resultSection.classList.add('hidden');
+                stepsSection.classList.add('hidden');
+            });
+            
+            // 显示步骤按钮事件
+            showStepsBtn.addEventListener('click', function() {
+                stepsContainer.innerHTML = '';
+                
+                currentSteps.forEach((step, index) => {
+                    const stepCard = document.createElement('div');
+                    stepCard.className = 'step-card';
+                    
+                    stepCard.innerHTML = `
+                        <div class="font-bold mb-2">步骤 ${index + 1}:</div>
+                        <div class="text-secondary mb-3">${step.description}</div>
+                        ${step.matrix ? renderMatrix(step.matrix) : ''}
+                    `;
+                    
+                    stepsContainer.appendChild(stepCard);
+                });
+                
+                stepsSection.classList.toggle('hidden');
+                
+                // 平滑滚动到步骤区域
+                if (!stepsSection.classList.contains('hidden')) {
+                    stepsSection.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>方程组求解 - 高等代数计算器</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b82f6',
+                        secondary: '#64748b',
+                        accent: '#f97316',
+                        dark: '#1e293b',
+                        light: '#f8fafc'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .equation-input {
+                @apply min-w-[64px] h-10 text-center border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300;
+            }
+            .step-card {
+                @apply bg-white p-4 rounded-lg shadow-md mb-4 transition-all duration-300 hover:shadow-lg;
+            }
+            .btn-primary {
+                @apply bg-primary text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 hover:bg-primary/90 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary/50;
+            }
+            .btn-secondary {
+                @apply bg-secondary text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 hover:bg-secondary/90 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-secondary/50;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-light to-gray-100 min-h-screen font-sans text-dark">
+    <!-- 导航栏 -->
+    <nav class="bg-white shadow-md">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <a href="index.html" class="flex items-center space-x-2">
+                    <i class="fa fa-calculator text-primary text-2xl"></i>
+                    <h1 class="text-xl font-bold text-primary">高等代数计算器</h1>
+                </a>
+            </div>
+            <div class="hidden md:flex space-x-6">
+                <a href="index.html" class="text-secondary hover:text-primary transition-colors duration-300">主页</a>
+                <a href="index.html#features" class="text-secondary hover:text-primary transition-colors duration-300">功能</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4 py-8">
+        <div class="max-w-5xl mx-auto">
+            <div class="bg-white rounded-xl shadow-md p-6 md:p-8 mb-8">
+                <h2 class="text-2xl md:text-3xl font-bold mb-6 text-center">线性方程组求解</h2>
+                <p class="text-secondary text-center mb-4">输入1-10个方程组成的线性方程组，求解未知变量</p>
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
+                    <h3 class="font-semibold text-blue-800">输入说明：</h3>
+                    <ul class="list-disc pl-6 text-blue-700">
+                        <li>支持整数输入，例如：123</li>
+                        <li>支持分数输入，格式为：分子/分母，例如：1/2、-3/4</li>
+                        <li>输入框为空时默认值为0</li>
+                        <li>方程数量最多为10，未知数数量最多为5</li>
+                    </ul>
+                </div>
+
+                <!-- 方程数量和未知数数量选择 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div>
+                        <label for="equation-count" class="block text-secondary mb-2">方程数量 (1-10):</label>
+                        <select id="equation-count" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300">
+                            <option value="2">2个方程</option>
+                            <option value="3" selected>3个方程</option>
+                            <option value="4">4个方程</option>
+                            <option value="5">5个方程</option>
+                            <option value="6">6个方程</option>
+                            <option value="7">7个方程</option>
+                            <option value="8">8个方程</option>
+                            <option value="9">9个方程</option>
+                            <option value="10">10个方程</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="variable-count" class="block text-secondary mb-2">未知数数量 (1-5):</label>
+                        <select id="variable-count" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300">
+                            <option value="1">1个未知数</option>
+                            <option value="2">2个未知数</option>
+                            <option value="3" selected>3个未知数</option>
+                            <option value="4">4个未知数</option>
+                            <option value="5">5个未知数</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex justify-center mb-8">
+                    <button id="generate-equations" class="btn-secondary">生成方程组</button>
+                </div>
+
+                <!-- 方程组输入区域 -->
+                <div id="equations-input-container" class="mb-8 max-h-96 overflow-y-auto">
+                    <!-- 方程组输入将在这里动态生成 -->
+                </div>
+
+                <!-- 操作按钮 -->
+                <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+                    <button id="solve-btn" class="btn-primary">求解方程组</button>
+                    <button id="clear-btn" class="btn-secondary">清空输入</button>
+                    <button onclick="window.location.href='index.html'" class="btn-secondary">返回主页</button>
+                </div>
+            </div>
+
+            <!-- 结果展示区域 -->
+            <div id="result-section" class="hidden">
+                <div class="bg-white rounded-xl shadow-md p-6 md:p-8 mb-8">
+                    <h3 class="text-xl font-bold mb-4">求解结果</h3>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <h4 class="font-medium mb-2">解的情况:</h4>
+                            <div id="solution-type-result" class="text-lg text-primary"></div>
+                        </div>
+                        
+                        <div id="rank-container">
+                            <h4 class="font-medium mb-2">矩阵的秩:</h4>
+                            <div id="rank-result" class="text-lg text-primary"></div>
+                        </div>
+                        
+                        <div id="particular-solution-container">
+                            <h4 class="font-medium mb-2">特解:</h4>
+                            <div id="particular-solution-result" class="text-lg text-primary"></div>
+                        </div>
+                        
+                        <div id="basis-solutions-container">
+                            <h4 class="font-medium mb-2">基础解系:</h4>
+                            <div id="basis-solutions-result" class="text-lg text-primary"></div>
+                        </div>
+                    </div>
+                    
+                    <button id="show-steps-btn" class="btn-secondary mt-6">查看详细步骤</button>
+                </div>
+
+                <!-- 步骤展示区域 -->
+                <div id="steps-section" class="hidden">
+                    <div class="bg-white rounded-xl shadow-md p-6 md:p-8">
+                        <h3 class="text-xl font-bold mb-6">求解步骤</h3>
+                        <div id="steps-container" class="space-y-6"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-dark text-white py-8 mt-16">
+        <div class="container mx-auto px-4">
+            <div class="text-center">
+                <div class="flex items-center justify-center space-x-2 mb-4">
+                    <i class="fa fa-calculator text-primary text-xl"></i>
+                    <span class="font-bold text-lg">高等代数计算器</span>
+                </div>
+                <p class="text-gray-400 mb-4">© 2024 高等代数计算器. 保留所有权利.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="lib/matrix-operations.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const equationCountSelect = document.getElementById('equation-count');
+            const variableCountSelect = document.getElementById('variable-count');
+            const generateEquationsBtn = document.getElementById('generate-equations');
+            const equationsInputContainer = document.getElementById('equations-input-container');
+            const solveBtn = document.getElementById('solve-btn');
+            const clearBtn = document.getElementById('clear-btn');
+            const resultSection = document.getElementById('result-section');
+            const solutionTypeResult = document.getElementById('solution-type-result');
+            const rankContainer = document.getElementById('rank-container');
+            const rankResult = document.getElementById('rank-result');
+            const particularSolutionContainer = document.getElementById('particular-solution-container');
+            const particularSolutionResult = document.getElementById('particular-solution-result');
+            const basisSolutionsContainer = document.getElementById('basis-solutions-container');
+            const basisSolutionsResult = document.getElementById('basis-solutions-result');
+            const showStepsBtn = document.getElementById('show-steps-btn');
+            const stepsSection = document.getElementById('steps-section');
+            const stepsContainer = document.getElementById('steps-container');
+            
+            let currentSteps = [];
+            
+            // 初始化3个方程，3个未知数
+            generateEquations(parseInt(equationCountSelect.value), parseInt(variableCountSelect.value));
+            
+            // 生成方程组输入
+            function generateEquations(count, variablesCount) {
+                equationsInputContainer.innerHTML = '';
+                
+                for (let i = 0; i < count; i++) {
+                    const equationDiv = document.createElement('div');
+                    equationDiv.className = 'mb-4 bg-gray-50 p-4 rounded-lg';
+                    
+                    let equationHtml = `<div class="flex flex-wrap items-center justify-center space-x-2">`;
+                    
+                    // 系数部分
+                    for (let j = 0; j < variablesCount; j++) {
+                        equationHtml += `
+                            <input type="text" id="coeff-${i}-${j}" class="equation-input" placeholder="0 或 1/2">
+                            <span class="text-lg">x<sub>${j+1}</sub></span>
+                        `;
+                        if (j < variablesCount - 1) {
+                            equationHtml += `<span class="text-lg">+</span>`;
+                        }
+                    }
+                    
+                    // 等号和常数项
+                    equationHtml += `
+                        <span class="text-lg mx-2">=</span>
+                        <input type="text" id="const-${i}" class="equation-input" placeholder="0 或 1/2">
+                    `;
+                    
+                    equationHtml += `</div>`;
+                    equationDiv.innerHTML = equationHtml;
+                    equationsInputContainer.appendChild(equationDiv);
+                }
+            }
+            
+            // 获取方程组数据
+            function getEquationsData() {
+                const count = parseInt(equationCountSelect.value);
+                const variablesCount = parseInt(variableCountSelect.value);
+                const coefficients = [];
+                const constants = [];
+                
+                for (let i = 0; i < count; i++) {
+                    coefficients[i] = [];
+                    for (let j = 0; j < variablesCount; j++) {
+                        const input = document.getElementById(`coeff-${i}-${j}`);
+                        const value = input.value.trim();
+                        
+                        if (!value) {
+                            // 允许空输入，默认为0
+                            coefficients[i][j] = 0;
+                        } else {
+                            // 直接使用输入值（可能是分数形式）
+                            coefficients[i][j] = value;
+                        }
+                    }
+                    
+                    const constInput = document.getElementById(`const-${i}`);
+                    const constValue = constInput.value.trim();
+                    
+                    if (!constValue) {
+                        // 允许空输入，默认为0
+                        constants[i] = 0;
+                    } else {
+                        // 直接使用输入值（可能是分数形式）
+                        constants[i] = constValue;
+                    }
+                }
+                
+                return { coefficients, constants };
+            }
+            
+            // 渲染矩阵
+            function renderMatrix(matrix) {
+                if (!matrix) return '';
+                
+                let html = '<div class="flex justify-center mb-2">';
+                html += '<table class="border-collapse inline-block">';
+                
+                // 创建MatrixOperations实例用于格式化数字
+                const formatOps = new MatrixOperations();
+                
+                for (let i = 0; i < matrix.length; i++) {
+                    html += '<tr>';
+                    for (let j = 0; j < matrix[i].length; j++) {
+                        const formattedValue = formatOps.formatNumber(matrix[i][j]);
+                        html += `<td class="p-1"><div class="min-w-[64px] h-8 bg-gray-50 rounded border text-center flex items-center justify-center">${formattedValue}</div></td>`;
+                    }
+                    html += '</tr>';
+                }
+                
+                html += '</table>';
+                html += '</div>';
+                return html;
+            }
+            
+            // 渲染解向量
+            function renderSolutionVector(solution) {
+                if (!solution) return '';
+                
+                let html = '<div class="flex flex-wrap justify-center">';
+                
+                // 创建MatrixOperations实例用于格式化数字
+                const formatOps = new MatrixOperations();
+                
+                solution.forEach((value, index) => {
+                    const formattedValue = formatOps.formatNumber(value);
+                    html += `<div class="mr-4 mb-2 min-w-[100px]">x<sub>${index+1}</sub> = ${formattedValue}</div>`;
+                });
+                html += '</div>';
+                return html;
+            }
+            
+            // 生成方程组按钮事件
+            generateEquationsBtn.addEventListener('click', function() {
+                const count = parseInt(equationCountSelect.value);
+                const variablesCount = parseInt(variableCountSelect.value);
+                generateEquations(count, variablesCount);
+                resultSection.classList.add('hidden');
+                stepsSection.classList.add('hidden');
+            });
+            
+            // 求解按钮事件
+            solveBtn.addEventListener('click', function() {
+                const data = getEquationsData();
+                
+                if (!data) {
+                    alert('请输入有效的数字！');
+                    return;
+                }
+                
+                // 执行求解
+                const matrixOps = new MatrixOperations();
+                matrixOps.setFormatType('rational'); // 使用有理数格式计算
+                const result = matrixOps.solveEquations(data.coefficients, data.constants);
+                
+                // 显示结果
+                // 将英文类型转换为中文显示
+                let solutionTypeText = '';
+                switch (result.type) {
+                    case 'no-solution':
+                        solutionTypeText = '无解';
+                        break;
+                    case 'unique-solution':
+                        solutionTypeText = '唯一解';
+                        break;
+                    case 'infinite-solutions':
+                        solutionTypeText = '无穷解';
+                        break;
+                    default:
+                        solutionTypeText = '未知解';
+                }
+                solutionTypeResult.textContent = solutionTypeText;
+                
+                rankContainer.classList.remove('hidden');
+                rankResult.textContent = `系数矩阵的秩: ${result.rankA}, 增广矩阵的秩: ${result.rankAugmented}`;
+                
+                if (result.type === 'no-solution') {
+                    particularSolutionContainer.classList.add('hidden');
+                    basisSolutionsContainer.classList.add('hidden');
+                } else {
+                    particularSolutionContainer.classList.remove('hidden');
+                    // 对于唯一解，使用result.solution，对于无穷解，使用result.particularSolution
+                    const solutionToDisplay = result.solution || result.particularSolution;
+                    particularSolutionResult.innerHTML = renderSolutionVector(solutionToDisplay);
+                    
+                    if (result.type === 'infinite-solutions') {
+                        basisSolutionsContainer.classList.remove('hidden');
+                        
+                        let basisHtml = '<div class="space-y-4">';
+                        result.basisSolutions.forEach((basis, index) => {
+                            basisHtml += `
+                                <div>
+                                    <div class="font-medium mb-1">基础解系向量 ${index + 1}:</div>
+                                    <div class="pl-4">${renderSolutionVector(basis)}</div>
+                                </div>
+                            `;
+                        });
+                        basisHtml += '</div>';
+                        
+                        basisSolutionsResult.innerHTML = basisHtml;
+                    } else {
+                        basisSolutionsContainer.classList.add('hidden');
+                    }
+                }
+                
+                resultSection.classList.remove('hidden');
+                currentSteps = result.steps || []; // 确保currentSteps是数组，即使result.steps不存在
+                stepsSection.classList.add('hidden');
+            });
+            
+            // 清空按钮事件
+            clearBtn.addEventListener('click', function() {
+                const count = parseInt(equationCountSelect.value);
+                const variablesCount = parseInt(variableCountSelect.value);
+                
+                for (let i = 0; i < count; i++) {
+                    for (let j = 0; j < variablesCount; j++) {
+                        const input = document.getElementById(`coeff-${i}-${j}`);
+                        if (input) input.value = '';
+                    }
+                    
+                    const constInput = document.getElementById(`const-${i}`);
+                    if (constInput) constInput.value = '';
+                }
+                
+                resultSection.classList.add('hidden');
+                stepsSection.classList.add('hidden');
+            });
+            
+            // 显示步骤按钮事件
+            showStepsBtn.addEventListener('click', function() {
+                stepsContainer.innerHTML = '';
+                
+                if (currentSteps && currentSteps.length > 0) { // 添加存在性检查
+                    currentSteps.forEach((step, index) => {
+                        const stepCard = document.createElement('div');
+                        stepCard.className = 'step-card';
+                        
+                        stepCard.innerHTML = `
+                            <div class="font-bold mb-2">步骤 ${index + 1}:</div>
+                            <div class="text-secondary mb-3">${step.description}</div>
+                            ${step.matrix ? renderMatrix(step.matrix) : ''}
+                        `;
+                        
+                        stepsContainer.appendChild(stepCard);
+                    });
+                } else {
+                    stepsContainer.innerHTML = '<div class="text-center text-secondary">无详细步骤可显示</div>';
+                }
+                
+                stepsSection.classList.toggle('hidden');
+                
+                // 平滑滚动到步骤区域
+                if (!stepsSection.classList.contains('hidden')) {
+                    stepsSection.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

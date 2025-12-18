@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>矩阵乘法和求逆测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+        }
+        .test-section {
+            margin-bottom: 40px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .test-result {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>矩阵乘法和求逆测试</h1>
+
+        <!-- 矩阵乘法测试 -->
+        <div class="test-section">
+            <h2>矩阵乘法测试</h2>
+            <div id="multiply-result" class="test-result">
+                <p>测试结果：<span id="multiply-status"></span></p>
+                <pre id="multiply-details"></pre>
+            </div>
+        </div>
+
+        <!-- 矩阵求逆测试 -->
+        <div class="test-section">
+            <h2>矩阵求逆测试</h2>
+            <div id="inverse-result" class="test-result">
+                <p>测试结果：<span id="inverse-status"></span></p>
+                <pre id="inverse-details"></pre>
+            </div>
+        </div>
+    </div>
+
+    <script src="lib/matrix-operations.js"></script>
+    <script>
+        // 测试矩阵乘法
+        function testMatrixMultiplication() {
+            try {
+                // 创建MatrixOperations实例
+                const matrixOps = new MatrixOperations();
+                
+                // 设置为小数输出以便于验证
+                matrixOps.setFormatType('decimal');
+                
+                // 测试矩阵
+                const matrix1 = [[1, 2, 3], [4, 5, 6]];
+                const matrix2 = [[7, 8], [9, 10], [11, 12]];
+                
+                // 调用矩阵乘法方法
+                const result = matrixOps.multiplyMatrices(matrix1, matrix2);
+                
+                // 显示结果
+                document.getElementById('multiply-status').innerHTML = '<span style="color: green;">成功</span>';
+                document.getElementById('multiply-details').textContent = JSON.stringify(result, null, 2);
+                
+                console.log('矩阵乘法结果:', result);
+            } catch (error) {
+                document.getElementById('multiply-status').innerHTML = '<span style="color: red;">失败</span>';
+                document.getElementById('multiply-details').textContent = '错误: ' + error.message;
+                console.error('矩阵乘法测试失败:', error);
+            }
+        }
+
+        // 测试矩阵求逆
+        function testMatrixInverse() {
+            try {
+                // 创建MatrixOperations实例
+                const matrixOps = new MatrixOperations();
+                
+                // 设置为小数输出以便于验证
+                matrixOps.setFormatType('decimal');
+                
+                // 测试矩阵
+                const matrix = [[1, 2], [3, 4]];
+                
+                // 调用矩阵求逆方法
+                const result = matrixOps.calculateInverse(matrix);
+                
+                // 显示结果
+                document.getElementById('inverse-status').innerHTML = '<span style="color: green;">成功</span>';
+                document.getElementById('inverse-details').textContent = JSON.stringify(result, null, 2);
+                
+                console.log('矩阵求逆结果:', result);
+            } catch (error) {
+                document.getElementById('inverse-status').innerHTML = '<span style="color: red;">失败</span>';
+                document.getElementById('inverse-details').textContent = '错误: ' + error.message;
+                console.error('矩阵求逆测试失败:', error);
+            }
+        }
+
+        // 页面加载完成后执行测试
+        window.onload = function() {
+            testMatrixMultiplication();
+            testMatrixInverse();
+        };
+    </script>
+</body>
+</html>
