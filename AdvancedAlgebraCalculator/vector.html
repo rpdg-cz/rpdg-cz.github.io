@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>向量线性相关性分析 - 高等代数计算器</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                    primary: '#3b82f6',
+                    secondary: '#64748b',
+                    accent: '#f97316',
+                    dark: '#1e293b',
+                    light: '#f8fafc'
+                },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <!-- MathJax 配置（LaTeX 支持） -->
+    <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$','$$'], ['\\[','\\]']],
+        macros: {
+          R: "\\mathbb{R}",
+          norm: ["\\left\\lVert#1\\right\\rVert", 1]
+        }
+      },
+      options: { skipHtmlTags: ['script','style','textarea','pre'] }
+    };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+
+    <style type="text/tailwindcss">
+        /* 防止在iOS上的缩放 */
+        input[type="number"] {
+            -webkit-appearance: none;
+            -moz-appearance: textfield;
+        }
+        
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .vector-input {
+                @apply min-w-[64px] h-10 text-center border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300;
+            }
+            /* 移动端输入框优化 */
+            .mobile-input {
+                width: 100%;
+                max-width: 60px;
+                padding: 0.5rem;
+            }
+            .step-card {
+                @apply bg-white p-4 rounded-lg shadow-md mb-4 transition-all duration-300 hover:shadow-lg;
+            }
+            .btn-primary {
+                @apply bg-primary text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 hover:bg-primary/90 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary/50;
+            }
+            .btn-secondary {
+                @apply bg-secondary text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 hover:bg-secondary/90 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-secondary/50;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-light to-gray-100 min-h-screen font-sans text-dark text-base">
+    <!-- 导航栏 -->
+    <nav class="bg-white shadow-md">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <a href="index.html" class="flex items-center space-x-2">
+                    <i class="fa fa-calculator text-primary text-2xl"></i>
+                    <h1 class="text-xl font-bold text-primary">高等代数计算器</h1>
+                </a>
+            </div>
+            <div class="hidden md:flex space-x-6">
+                <a href="index.html" class="text-secondary hover:text-primary transition-colors duration-300">主页</a>
+                <a href="index.html#features" class="text-secondary hover:text-primary transition-colors duration-300">功能</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-3 py-6">
+        <div class="w-full">
+            <div class="bg-white rounded-xl shadow-md p-6 md:p-8 mb-8">
+                <h2 class="text-[clamp(1.5rem,4vw,2.5rem)] font-bold mb-4 text-center">向量线性相关性分析</h2>
+                <p class="text-secondary text-center mb-6 text-sm md:text-base">输入10个以内的同维向量（10维以内），判断线性相关性并找出极大线性无关组</p>
+
+                <!-- 向量数量和维数选择 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <label for="vector-count" class="block text-secondary mb-2">向量数量 (1-10):</label>
+                        <select id="vector-count" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300">
+                            <option value="2">2个向量</option>
+                            <option value="3" selected>3个向量</option>
+                            <option value="4">4个向量</option>
+                            <option value="5">5个向量</option>
+                            <option value="6">6个向量</option>
+                            <option value="7">7个向量</option>
+                            <option value="8">8个向量</option>
+                            <option value="9">9个向量</option>
+                            <option value="10">10个向量</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="vector-dimension" class="block text-secondary mb-2">向量维数 (1-10):</label>
+                        <select id="vector-dimension" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300">
+                            <option value="2">2维</option>
+                            <option value="3" selected>3维</option>
+                            <option value="4">4维</option>
+                            <option value="5">5维</option>
+                            <option value="6">6维</option>
+                            <option value="7">7维</option>
+                            <option value="8">8维</option>
+                            <option value="9">9维</option>
+                            <option value="10">10维</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex justify-center mb-6">
+                    <button id="generate-vectors" class="btn-secondary">生成向量输入框</button>
+                </div>
+
+                <!-- 向量输入区域 -->
+                <div id="vectors-input-container" class="mb-6 max-h-96 overflow-y-auto overflow-x-auto">
+                    <!-- 向量输入将在这里动态生成 -->
+                </div>
+
+                <!-- 操作按钮 -->
+                <div class="flex flex-wrap justify-center gap-3">
+                    <button id="analyze-btn" class="btn-primary min-w-[140px] text-center">分析相关性</button>
+                    <button id="clear-btn" class="btn-secondary min-w-[140px] text-center">清空输入</button>
+                    <button onclick="window.location.href='index.html'" class="btn-secondary min-w-[140px] text-center">返回主页</button>
+                </div>
+            </div>
+
+            <!-- 结果展示区域 -->
+            <div id="result-section" class="hidden">
+                <div class="bg-white rounded-xl shadow-md p-4 md:p-6 mb-6">
+                    <h3 class="text-lg md:text-xl font-bold mb-3">分析结果</h3>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <h4 class="font-medium mb-2">线性相关性:</h4>
+                            <div id="linear-independence-result" class="text-base md:text-lg text-primary"></div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="font-medium mb-2">向量组的秩:</h4>
+                            <div id="rank-result" class="text-base md:text-lg text-primary"></div>
+                        </div>
+                        
+                        <div id="max-independent-set-container">
+                            <h4 class="font-medium mb-2">极大线性无关组:</h4>
+                            <div id="max-independent-set-result" class="text-base md:text-lg text-primary"></div>
+                        </div>
+                    </div>
+                    
+                    <button id="show-steps-btn" class="btn-primary mt-4">查看详细步骤</button>
+                </div>
+
+                <!-- 步骤展示区域 -->
+                <div id="steps-section" class="hidden">
+                    <div class="bg-white rounded-xl shadow-md p-4 md:p-6 overflow-x-auto">
+                        <h3 class="text-lg md:text-xl font-bold mb-4">分析步骤</h3>
+                    <div id="steps-container" class="space-y-4"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-dark text-white py-8 mt-16">
+        <div class="container mx-auto px-4">
+            <div class="text-center">
+                <div class="flex items-center justify-center space-x-2 mb-4">
+                    <i class="fa fa-calculator text-primary text-xl"></i>
+                    <span class="font-bold text-lg">高等代数计算器</span>
+                </div>
+                <p class="text-gray-400 mb-4">© 2024 高等代数计算器. 保留所有权利.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="lib/matrix-operations.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const vectorCountSelect = document.getElementById('vector-count');
+            const vectorDimensionSelect = document.getElementById('vector-dimension');
+            const generateVectorsBtn = document.getElementById('generate-vectors');
+            const vectorsContainer = document.getElementById('vectors-input-container');
+                //const showStepsBtn = document.getElementById('show-steps-btn');
+            const analyzeBtn = document.getElementById('analyze-btn');
+            const clearBtn = document.getElementById('clear-btn');
+            const resultSection = document.getElementById('result-section');
+            const stepsSection = document.getElementById('steps-section');
+            const stepsContainer = document.getElementById('steps-container');
+            const linearIndependenceResult = document.getElementById('linear-independence-result');
+            const rankResult = document.getElementById('rank-result');
+            const maxIndependentSetContainer = document.getElementById('max-independent-set-container');
+            const maxIndependentSetResult = document.getElementById('max-independent-set-result');
+            const showStepsBtn = document.getElementById('show-steps-btn');
+            
+            let currentSteps = [];
+            
+            // 初始化5个3维向量
+            generateVectors(5, 3);
+            vectorCountSelect.value = 5;
+            
+            // 生成向量输入区域
+            function generateVectors(count, dimension) {
+                vectorsContainer.innerHTML = '';
+                
+                const grid = document.createElement('div');
+                grid.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4';
+                
+                for (let i = 0; i < count; i++) {
+                    const vectorDiv = document.createElement('div');
+                    vectorDiv.className = 'bg-white rounded-lg p-4 shadow-sm';
+                    vectorDiv.innerHTML = `<h4 class="font-medium mb-2 text-center">向量 ${i+1}</h4>`;
+                    
+                    const inputsDiv = document.createElement('div');
+                    inputsDiv.className = 'flex flex-wrap justify-center gap-2';
+                    
+                    for (let j = 0; j < dimension; j++) {
+                        const input = document.createElement('input');
+                    input.type = 'number';
+                    input.className = 'vector-input mobile-input';
+                    input.id = `vector-${i}-${j}`;
+                    input.placeholder = `${j+1}`;
+                    inputsDiv.appendChild(input);
+                    }
+                    
+                    vectorDiv.appendChild(inputsDiv);
+                    grid.appendChild(vectorDiv);
+                }
+                
+                vectorsContainer.appendChild(grid);
+                resultSection.classList.add('hidden');
+                stepsSection.classList.add('hidden');
+            }
+            
+            // 获取向量数据
+            function getVectorsData() {
+                const count = parseInt(vectorCountSelect.value);
+                const dimension = parseInt(vectorDimensionSelect.value);
+                const vectors = [];
+                
+                for (let i = 0; i < count; i++) {
+                    vectors[i] = [];
+                    for (let j = 0; j < dimension; j++) {
+                        const input = document.getElementById(`vector-${i}-${j}`);
+                        const value = parseFloat(input.value);
+                        if (isNaN(value)) {
+                            return null; // 输入无效
+                        }
+                        vectors[i][j] = value;
+                    }
+                }
+                
+                return vectors;
+            }
+            
+            // 渲染矩阵（用于步骤显示）
+            function renderMatrix(matrix) {
+                if (!matrix) return '';
+                
+                // 创建一个临时的MatrixOperations实例用于格式化数字
+                const formatOps = new MatrixOperations();
+                
+                let html = '<div class="flex justify-center mb-2">';
+                html += '<table class="border-collapse inline-block">';
+                
+                for (let i = 0; i < matrix.length; i++) {
+                    html += '<tr>';
+                    for (let j = 0; j < matrix[i].length; j++) {
+                    html += `<td class="p-1"><div class="min-w-[56px] h-8 bg-gray-50 rounded border text-center flex items-center justify-center text-sm">${formatOps.formatNumber(matrix[i][j])}</div></td>`;
+                }
+                    html += '</tr>';
+                }
+                
+                html += '</table>';
+                html += '</div>';
+                return html;
+            }
+            
+            // 渲染向量
+            function renderVector(vector) {
+                // 创建一个临时的MatrixOperations实例用于格式化数字
+                const formatOps = new MatrixOperations();
+                return `(${vector.map(v => formatOps.formatNumber(v)).join(', ')})`;
+            }
+            
+            // 生成向量按钮事件
+            generateVectorsBtn.addEventListener('click', function() {
+                const count = parseInt(vectorCountSelect.value);
+                const dimension = parseInt(vectorDimensionSelect.value);
+                generateVectors(count, dimension);
+            });
+            
+            // 分析按钮事件
+            analyzeBtn.addEventListener('click', function() {
+                const vectors = getVectorsData();
+                
+                if (!vectors) {
+                    alert('请输入有效的数字！');
+                    return;
+                }
+                
+                // 执行向量线性相关性分析
+                const matrixOps = new MatrixOperations();
+                try {
+                    const result = matrixOps.analyzeVectors(vectors);
+                    
+                    // 更新结果
+                    linearIndependenceResult.textContent = result.isLinearlyIndependent ? '线性无关' : '线性相关';
+                    rankResult.textContent = result.rank;
+                    
+                    // 显示极大线性无关组
+                    if (!result.isLinearlyIndependent) {
+                        maxIndependentSetContainer.classList.remove('hidden');
+                        let maxIndependentHTML = '';
+                        for (let i = 0; i < result.pivotColumns.length; i++) {
+                            const vectorIndex = result.pivotColumns[i];
+                            const vectorContent = renderVector(vectors[vectorIndex - 1]);
+                            maxIndependentHTML += `<li class="mb-2">向量 ${vectorIndex}: ${vectorContent}</li>`;
+                        }
+                        maxIndependentSetResult.innerHTML = `<ul>${maxIndependentHTML}</ul>`;
+                    } else {
+                        maxIndependentSetContainer.classList.add('hidden');
+                    }
+                    
+                    // 保存步骤
+                    currentSteps = result.steps;
+                    
+                    // 显示结果区域
+                    resultSection.classList.remove('hidden');
+                    stepsSection.classList.add('hidden');
+                    
+                    // 平滑滚动到结果区域
+                    resultSection.scrollIntoView({ behavior: 'smooth' });
+                } catch (error) {
+                    alert('分析过程中发生错误: ' + error.message);
+                }
+            });
+            
+            // 清空按钮事件
+            clearBtn.addEventListener('click', function() {
+                const count = parseInt(vectorCountSelect.value);
+                const dimension = parseInt(vectorDimensionSelect.value);
+                
+                // 清空所有输入
+                for (let i = 0; i < count; i++) {
+                    for (let j = 0; j < dimension; j++) {
+                        const input = document.getElementById(`vector-${i}-${j}`);
+                        if (input) input.value = '';
+                    }
+                }
+                
+                resultSection.classList.add('hidden');
+                stepsSection.classList.add('hidden');
+            });
+            
+            // 辅助：检查是否已有 LaTeX 标记
+            function containsLatexMarkers(text) {
+                return /\$|\\\(|\\\[|\\begin\{/.test(text);
+            }
+
+            // 自动包装常见数学片段为行内 LaTeX
+            function autoWrapMath(text) {
+                if (!text) return '';
+                // 暂存 HTML 标签
+                const htmlTags = [];
+                text = text.replace(/<[^>]+>/g, (m) => {
+                    htmlTags.push(m);
+                    return `__HTML_TAG_${htmlTags.length - 1}__`;
+                });
+
+                // 分数 a/b -> $\frac{a}{b}$
+                text = text.replace(/-?\d+\/\d+/g, (m) => {
+                    const negative = m.startsWith('-');
+                    const core = negative ? m.slice(1) : m;
+                    const [num, den] = core.split('/');
+                    return (negative ? '-' : '') + `$\\frac{${num}}{${den}}$`;
+                });
+
+                // 下标 u_1 -> $u_{1}$
+                text = text.replace(/\b([a-zA-Z])_(\d+)\b/g, (m, p1, p2) => `$${p1}_{${p2}}$`);
+
+                // 乘号 a * b -> $a \cdot b$ 或回退为中点
+                text = text.replace(/([^\s<>$]+)\s*\*\s*([^\s<>$]+)/g, (match, left, right) => {
+                    const leftHas = containsLatexMarkers(left);
+                    const rightHas = containsLatexMarkers(right);
+                    const leftIsHtml = /<[^>]+>/.test(left) || /<[^>]+>/.test(right);
+                    if (leftHas || rightHas || leftIsHtml) return `${left} · ${right}`;
+                    return `$${left} \\cdot ${right}$`;
+                });
+
+                // 恢复 HTML 标签
+                text = text.replace(/__HTML_TAG_(\d+)__/g, (_, idx) => htmlTags[parseInt(idx,10)] || '');
+                return text;
+            }
+
+            // 渲染矩阵为 LaTeX（bmatrix）
+            function renderMatrixAsLatex(matrix) {
+                if (!matrix || !Array.isArray(matrix) || matrix.length === 0) return '';
+                const formatOps = new MatrixOperations();
+                const rows = matrix.map(row => {
+                    if (!Array.isArray(row)) return '';
+                    return row.map(cell => {
+                        try { return formatOps.formatNumber(cell).toString(); } catch (e) { return String(cell); }
+                    }).join(' & ');
+                }).join(' \\\\ ');
+                return `$$\\begin{bmatrix}${rows}\\end{bmatrix}$$`;
+            }
+
+            // 显示步骤按钮事件（使用 LaTeX 支持）
+            showStepsBtn.addEventListener('click', function() {
+                stepsContainer.innerHTML = '';
+
+                if (!currentSteps || currentSteps.length === 0) {
+                    const noStepsElement = document.createElement('div');
+                    noStepsElement.className = 'step-card';
+                    noStepsElement.innerHTML = '<div class="font-bold mb-2 text-center text-secondary">暂无步骤数据</div>';
+                    stepsContainer.appendChild(noStepsElement);
+                } else {
+                    currentSteps.forEach((step, index) => {
+                        const stepElement = document.createElement('div');
+                        stepElement.className = 'step-card';
+
+                        // 处理描述：若没有显式 LaTeX，则自动包装常见数学片段
+                        let description = step && step.description ? String(step.description) : '无描述';
+                        description = description.replace(/\n/g, '<br>');
+                        if (!containsLatexMarkers(description)) {
+                            description = autoWrapMath(description);
+                        }
+
+                        // 矩阵优先以 LaTeX 渲染
+                        let matrixHtml = '';
+                        if (step && step.matrix) {
+                            try {
+                                matrixHtml = renderMatrixAsLatex(step.matrix);
+                            } catch (e) {
+                                matrixHtml = `<pre>${JSON.stringify(step.matrix)}</pre>`;
+                            }
+                        }
+
+                        stepElement.innerHTML = `
+                            <div class="font-bold mb-2 text-sm md:text-base">步骤 ${index + 1}</div>
+                            <div class="text-secondary mb-3">${description}</div>
+                            <div class="overflow-x-auto">${matrixHtml}</div>
+                        `;
+                        stepsContainer.appendChild(stepElement);
+                    });
+                }
+
+                stepsSection.classList.toggle('hidden');
+
+                // 渲染 LaTeX（MathJax）——确保在 MathJax 加载后执行
+                function ensureMathJaxTypeset() {
+                    if (window.MathJax && MathJax.typesetPromise) return MathJax.typesetPromise().catch(e => { console.warn('MathJax typeset failed', e); });
+                    return new Promise((resolve) => {
+                        const timer = setInterval(() => {
+                            if (window.MathJax && MathJax.typesetPromise) {
+                                clearInterval(timer);
+                                MathJax.typesetPromise().then(resolve).catch(e => { console.warn('MathJax typeset failed', e); resolve(); });
+                            }
+                        }, 200);
+                        // 超时后放弃等待（避免无限等待）
+                        setTimeout(() => { clearInterval(timer); resolve(); }, 5000);
+                    });
+                }
+                ensureMathJaxTypeset();
+            });
+        });
+    </script>
+</body>
+</html>

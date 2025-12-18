@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test solveEquations</title>
+</head>
+<body>
+    <h1>测试 solveEquations 方法</h1>
+    <div id="result"></div>
+
+    <script src="lib/matrix-operations.js"></script>
+    <script>
+        // 测试 1: 唯一解
+        const matrix1 = [[1, 2], [3, 4]];
+        const constants1 = [5, 11];
+        
+        // 测试 2: 无解
+        const matrix2 = [[1, 2], [2, 4]];
+        const constants2 = [5, 11];
+        
+        // 测试 3: 无穷解
+        const matrix3 = [[1, 2], [2, 4]];
+        const constants3 = [5, 10];
+        
+        const matrixOps = new MatrixOperations();
+        matrixOps.setFormatType('rational');
+        
+        let result = document.getElementById('result');
+        
+        try {
+            console.log('测试 1: 唯一解');
+            let res1 = matrixOps.solveEquations(matrix1, constants1);
+            console.log(res1);
+            result.innerHTML += '<h2>测试 1: 唯一解</h2><pre>' + JSON.stringify(res1, null, 2) + '</pre>';
+            
+            console.log('测试 2: 无解');
+            let res2 = matrixOps.solveEquations(matrix2, constants2);
+            console.log(res2);
+            result.innerHTML += '<h2>测试 2: 无解</h2><pre>' + JSON.stringify(res2, null, 2) + '</pre>';
+            
+            console.log('测试 3: 无穷解');
+            let res3 = matrixOps.solveEquations(matrix3, constants3);
+            console.log(res3);
+            result.innerHTML += '<h2>测试 3: 无穷解</h2><pre>' + JSON.stringify(res3, null, 2) + '</pre>';
+        } catch (e) {
+            console.error(e);
+            result.innerHTML += '<h2>错误</h2><p>' + e.message + '</p>';
+        }
+    </script>
+</body>
+</html>

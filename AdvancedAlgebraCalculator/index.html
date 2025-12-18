@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>高等代数计算器</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b82f6',
+                        secondary: '#64748b',
+                        accent: '#f97316',
+                        dark: '#1e293b',
+                        light: '#f8fafc'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .card-hover {
+                @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+            }
+            .btn-primary {
+                @apply bg-primary text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 hover:bg-primary/90 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary/50;
+            }
+            .btn-secondary {
+                @apply bg-secondary text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 hover:bg-secondary/90 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-secondary/50;
+            }
+            .input-field {
+                @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-light to-gray-100 min-h-screen font-sans text-dark">
+    <!-- 导航栏 -->
+    <nav class="bg-white shadow-md sticky top-0 z-50 transition-all duration-300">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fa fa-calculator text-primary text-2xl animate-pulse"></i>
+                <h1 class="text-xl font-bold text-primary">高等代数计算器</h1>
+            </div>
+            <div class="hidden md:flex space-x-6">
+                <a href="#" class="text-secondary hover:text-primary transition-colors duration-300">主页</a>
+                <a href="#features" class="text-secondary hover:text-primary transition-colors duration-300">功能</a>
+                <a href="#about" class="text-secondary hover:text-primary transition-colors duration-300">关于</a>
+            </div>
+            <div class="md:hidden">
+                <button id="mobile-menu-btn" class="text-primary text-xl">
+                    <i class="fa fa-bars"></i>
+                </button>
+            </div>
+        </div>
+        <!-- 移动端菜单 -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-100 shadow-lg">
+            <div class="container mx-auto px-4 py-3 flex flex-col space-y-3">
+                <a href="#" class="text-secondary hover:text-primary transition-colors duration-300 py-2">主页</a>
+                <a href="#features" class="text-secondary hover:text-primary transition-colors duration-300 py-2">功能</a>
+                <a href="#about" class="text-secondary hover:text-primary transition-colors duration-300 py-2">关于</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 英雄区域 -->
+    <header class="py-16 md:py-24">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-[clamp(2rem,5vw,3.5rem)] font-bold mb-4 text-dark leading-tight">
+                强大的高等代数计算工具
+            </h2>
+            <p class="text-secondary text-lg md:text-xl mb-8 max-w-2xl mx-auto">
+                行列式计算、向量分析、方程组求解、矩阵运算，一站式解决您的代数问题，支持详细步骤展示
+            </p>
+            <a href="#features" class="btn-primary inline-flex items-center space-x-2">
+                <span>开始使用</span>
+                <i class="fa fa-arrow-right"></i>
+            </a>
+        </div>
+    </header>
+
+    <!-- 功能区域 -->
+    <section id="features" class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <h3 class="text-2xl md:text-3xl font-bold text-center mb-12">核心功能</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- 行列式计算 -->
+                <div class="bg-light rounded-xl p-6 shadow-md transform transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:scale-[1.02]">
+                    <div class="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-all duration-300">
+                        <i class="fa fa-th text-primary text-2xl animate-bounce"></i>
+                    </div>
+                    <h4 class="text-xl font-bold mb-3">行列式计算</h4>
+                    <p class="text-secondary mb-4">计算6阶以内行列式的值，并展示每一步变换过程</p>
+                    <button onclick="window.location.href='determinant.html'" class="btn-primary w-full transform transition-all duration-300 hover:scale-105">
+                        开始计算
+                    </button>
+                </div>
+
+                <!-- 向量线性相关性 -->
+                <div class="bg-light rounded-xl p-6 shadow-md transform transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:scale-[1.02]">
+                    <div class="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-all duration-300">
+                        <i class="fa fa-arrows-alt text-primary text-2xl animate-bounce"></i>
+                    </div>
+                    <h4 class="text-xl font-bold mb-3">向量线性相关性</h4>
+                    <p class="text-secondary mb-4">分析10个以内同维向量的线性相关性，找出极大线性无关组</p>
+                    <button onclick="window.location.href='vector.html'" class="btn-primary w-full transform transition-all duration-300 hover:scale-105">
+                        开始分析
+                    </button>
+                </div>
+
+                <!-- 方程组求解 -->
+                <div class="bg-light rounded-xl p-6 shadow-md transform transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:scale-[1.02]">
+                    <div class="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-all duration-300">
+                        <i class="fa fa-superscript text-primary text-2xl animate-bounce"></i>
+                    </div>
+                    <h4 class="text-xl font-bold mb-3">方程组求解</h4>
+                    <p class="text-secondary mb-4">解5个未知数以内的方程组，判断解的情况并给出通解</p>
+                    <button onclick="window.location.href='equation.html'" class="btn-primary w-full transform transition-all duration-300 hover:scale-105">
+                        开始求解
+                    </button>
+                </div>
+
+                <!-- 矩阵乘法 -->
+                <div class="bg-light rounded-xl p-6 shadow-md transform transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:scale-[1.02]">
+                    <div class="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-all duration-300">
+                        <i class="fa fa-exchange text-primary text-2xl animate-bounce"></i>
+                    </div>
+                    <h4 class="text-xl font-bold mb-3">矩阵乘法</h4>
+                    <p class="text-secondary mb-4">计算2个6×6以内矩阵的乘积，自动检查是否可乘</p>
+                    <button onclick="window.location.href='matrix-multiply.html'" class="btn-primary w-full transform transition-all duration-300 hover:scale-105">
+                        开始运算
+                    </button>
+                </div>
+
+                <!-- 矩阵求逆 -->
+                <div class="bg-light rounded-xl p-6 shadow-md transform transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:scale-[1.02]">
+                    <div class="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-all duration-300">
+                        <i class="fa fa-refresh text-primary text-2xl animate-bounce"></i>
+                    </div>
+                    <h4 class="text-xl font-bold mb-3">矩阵求逆</h4>
+                    <p class="text-secondary mb-4">判断矩阵是否可逆，计算逆矩阵并展示初等行变换步骤</p>
+                    <button onclick="window.location.href='matrix-inverse.html'" class="btn-primary w-full transform transition-all duration-300 hover:scale-105">
+                        开始计算
+                    </button>
+                </div>
+
+                <!-- 特征多项式计算 -->
+                <div class="bg-light rounded-xl p-6 shadow-md transform transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:scale-[1.02]">
+                    <div class="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-all duration-300">
+                        <i class="fa fa-line-chart text-primary text-2xl animate-bounce"></i>
+                    </div>
+                    <h4 class="text-xl font-bold mb-3">特征多项式</h4>
+                    <p class="text-secondary mb-4">计算方阵的特征多项式，支持分数运算和详细步骤展示</p>
+                    <button onclick="window.location.href='matrix-characteristic-polynomial.html'" class="btn-primary w-full transform transition-all duration-300 hover:scale-105">
+                        开始计算
+                    </button>
+                </div>
+
+                <!-- 施密尔特正交化 -->
+                <div class="bg-light rounded-xl p-6 shadow-md transform transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:scale-[1.02]">
+                    <div class="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-all duration-300">
+                        <i class="fa fa-arrows-alt-h text-primary text-2xl animate-bounce"></i>
+                    </div>
+                    <h4 class="text-xl font-bold mb-3">施密尔特正交化</h4>
+                    <p class="text-secondary mb-4">判断向量组线性无关性，对线性无关的向量组进行施密尔特正交化</p>
+                    <button onclick="window.location.href='schmidt-orthonormalization.html'" class="btn-primary w-full transform transition-all duration-300 hover:scale-105">
+                        开始计算
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 关于区域 -->
+    <section id="about" class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="max-w-3xl mx-auto text-center">
+                <h3 class="text-2xl md:text-3xl font-bold mb-6">关于高等代数计算器</h3>
+                <p class="text-secondary mb-6">
+                    本计算器是一个专业的线性代数计算工具，为学生、教师和研究人员提供便捷的矩阵运算功能。
+                    所有计算均在浏览器中完成，保证数据安全。
+                </p>
+                <!-- <div class="flex justify-center space-x-4">
+                    <a href="#" class="text-primary hover:text-primary/80 transition-colors duration-300">
+                        <i class="fa fa-question-circle mr-1"></i> 使用帮助
+                    </a>
+                    <a href="#" class="text-primary hover:text-primary/80 transition-colors duration-300">
+                        <i class="fa fa-github mr-1"></i> 源码
+                    </a>
+                </div> -->
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="bg-dark text-white py-8">
+        <!-- <div class="container mx-auto px-4">
+            <div class="text-center">
+                <div class="flex items-center justify-center space-x-2 mb-4">
+                    <i class="fa fa-calculator text-primary text-xl"></i>
+                    <span class="font-bold text-lg">高等代数计算器</span>
+                </div>
+                <p class="text-gray-400 mb-4">© 2024 高等代数计算器. 保留所有权利.</p>
+            </div>
+        </div> -->
+    </footer>
+
+    <script src="lib/matrix-operations.js"></script>
+    <script>
+        // 移动端菜单切换
+        document.getElementById('mobile-menu-btn').addEventListener('click', function() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('hidden');
+        });
+        
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+        
+        // 导航栏滚动效果
+        window.addEventListener('scroll', function() {
+            const nav = document.querySelector('nav');
+            if (window.scrollY > 50) {
+                nav.classList.add('shadow-lg', 'py-2');
+                nav.classList.remove('py-3');
+            } else {
+                nav.classList.remove('shadow-lg', 'py-2');
+                nav.classList.add('py-3');
+            }
+        });
+        
+        // 页面加载动画
+        window.addEventListener('load', function() {
+            document.body.classList.add('opacity-100');
+            document.body.classList.remove('opacity-0');
+        });
+        
+        // 为按钮添加页面跳转逻辑和动画
+        document.querySelectorAll('button[onclick^="window.location.href"]').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetUrl = this.getAttribute('onclick').match(/'([^']+)'/)[1];
+                // 添加页面切换动画
+                document.body.style.opacity = '0';
+                document.body.style.transition = 'opacity 0.5s ease';
+                setTimeout(() => {
+                    window.location.href = targetUrl;
+                }, 300);
+            });
+        });
+    </script>
+</body>
+</html>

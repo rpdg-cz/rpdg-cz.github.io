@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>矩阵求逆 - 高等代数计算器</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b82f6',
+                        secondary: '#64748b',
+                        accent: '#f97316',
+                        dark: '#1e293b',
+                        light: '#f8fafc'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .matrix-input {
+                @apply min-w-[64px] h-10 text-center border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300;
+            }
+            /* 移动端输入框优化 */
+            .mobile-input {
+                width: 100%;
+                max-width: 60px;
+                padding: 0.5rem;
+            }
+            .result-matrix {
+                @apply bg-white rounded-xl shadow-md p-4 md:p-6;
+            }
+            .btn-primary {
+                @apply bg-primary text-white px-5 py-2 rounded-lg font-medium transition-all duration-300 hover:bg-primary/90 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary/50;
+            }
+            .btn-secondary {
+                @apply bg-secondary text-white px-5 py-2 rounded-lg font-medium transition-all duration-300 hover:bg-secondary/90 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-secondary/50;
+            }
+            .step-container {
+                @apply mb-6 p-3 border border-gray-200 rounded-lg;
+            }
+        }
+    </style>
+    <style>
+        /* 基础响应式样式 */
+        body {
+            font-size: 16px;
+        }
+        
+        /* 防止在iOS上的缩放 */
+        input[type="number"],
+        input[type="text"] {
+            -webkit-appearance: none;
+            -moz-appearance: textfield;
+        }
+        
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        
+        /* 矩阵容器的水平滚动支持 */
+        .matrix-scrollable {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-light to-gray-100 min-h-screen font-sans text-dark text-base">
+    <!-- 导航栏 -->
+    <nav class="bg-white shadow-md">
+        <div class="container mx-auto px-3 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <a href="index.html" class="flex items-center space-x-2">
+                    <i class="fa fa-calculator text-primary text-lg md:text-2xl"></i>
+                    <h1 class="text-base md:text-xl font-bold text-primary">高等代数计算器</h1>
+                </a>
+            </div>
+            <div class="hidden md:flex space-x-6">
+                <a href="index.html" class="text-secondary hover:text-primary transition-colors duration-300">主页</a>
+                <a href="index.html#features" class="text-secondary hover:text-primary transition-colors duration-300">功能</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-3 py-6">
+        <div class="w-full">
+            <div class="bg-white rounded-xl shadow-md p-4 md:p-6 mb-6">
+                <h2 class="text-[clamp(1.5rem,4vw,2.5rem)] font-bold mb-4 text-center">矩阵求逆</h2>
+                <p class="text-secondary text-center mb-4 text-sm md:text-base">本工具使用高斯-约旦消元法（初等行变换）计算矩阵的逆。输入一个2-6阶方阵，计算其逆矩阵（如果可逆）</p>
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-6">
+                    <h3 class="font-semibold text-blue-800 text-sm md:text-base">输入说明：</h3>
+                    <ul class="list-disc pl-6 text-blue-700 text-sm">
+                        <li>支持整数输入，例如：123</li>
+                        <li>支持分数输入，格式为：分子/分母，例如：1/2、-3/4</li>
+                        <li>输入框为空时默认值为0</li>
+                        <li>只有行列式不为0的矩阵才有逆矩阵</li>
+                    </ul>
+                </div>
+
+                <!-- 矩阵大小选择 -->
+                <div class="flex flex-col md:flex-row gap-4 justify-center items-center mb-6">
+                    <div class="w-full md:w-auto md:max-w-xs">
+                        <label for="matrix-rows" class="block text-secondary mb-2 text-center">矩阵阶数 (2-6):</label>
+                        <select id="matrix-rows" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300">
+                            <option value="2">2×2</option>
+                            <option value="3" selected>3×3</option>
+                            <option value="4">4×4</option>
+                            <option value="5">5×5</option>
+                            <option value="6">6×6</option>
+                        </select>
+                    </div>
+                    <div class="w-full md:w-auto md:max-w-xs">
+                        <label for="output-format" class="block text-secondary mb-2 text-center">输出格式:</label>
+                        <select id="output-format" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300">
+                            <option value="rational" selected>有理数（分数）</option>
+                            <option value="integer">整数</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex justify-center mb-6">
+                    <button id="generate-matrix" class="btn-secondary min-w-[140px]">生成矩阵</button>
+                </div>
+
+                <!-- 矩阵输入区域 -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-bold mb-3 text-center">矩阵</h3>
+                    <div id="matrix-container" class="flex justify-center matrix-scrollable"></div>
+                </div>
+
+                <!-- 操作按钮 -->
+                <div class="flex flex-wrap justify-center gap-3">
+                    <button id="inverse-btn" class="btn-primary min-w-[140px] text-center">计算逆矩阵</button>
+                    <button id="clear-btn" class="btn-secondary min-w-[140px] text-center">清空输入</button>
+                    <button onclick="window.location.href='index.html'" class="btn-secondary min-w-[140px] text-center">返回主页</button>
+                </div>
+            </div>
+
+            <!-- 可逆性结果区域 -->
+            <div id="invertible-section" class="hidden mb-6">
+                <div class="bg-green-50 border border-green-200 rounded-xl p-4 md:p-6">
+                    <h3 class="text-lg md:text-xl font-bold mb-3 text-green-600 text-center">矩阵可逆</h3>
+                </div>
+            </div>
+
+            <!-- 不可逆结果区域 -->
+            <div id="not-invertible-section" class="hidden mb-6">
+                <div class="bg-red-50 border border-red-200 rounded-xl p-4 md:p-6">
+                    <h3 class="text-lg md:text-xl font-bold mb-3 text-red-600 text-center">矩阵不可逆</h3>
+                    <p class="text-red-500 text-center text-sm md:text-base">该矩阵的行列式为0，因此不可逆。</p>
+                </div>
+            </div>
+
+            <!-- 初等列变换步骤区域 -->
+            <div id="steps-section" class="hidden mb-6">
+                <div class="bg-white rounded-xl shadow-md p-4 md:p-6">
+                    <h3 class="text-lg md:text-xl font-bold mb-4 text-center">初等行变换步骤</h3>
+                    <div id="steps-container" class="space-y-6 max-h-96 overflow-y-auto matrix-scrollable">
+                        <!-- 初等行变换步骤将在这里动态生成 -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 逆矩阵结果区域 -->
+            <div id="result-section" class="hidden">
+                <div class="result-matrix">
+                    <h3 class="text-lg md:text-xl font-bold mb-4 text-center">逆矩阵</h3>
+                    <div id="result-matrix-container" class="flex justify-center matrix-scrollable"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-dark text-white py-8 mt-16">
+        <div class="container mx-auto px-4">
+            <div class="text-center">
+                <div class="flex items-center justify-center space-x-2 mb-4">
+                    <i class="fa fa-calculator text-primary text-xl"></i>
+                    <span class="font-bold text-lg">高等代数计算器</span>
+                </div>
+                <p class="text-gray-400 mb-4">© 2024 高等代数计算器. 保留所有权利.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="lib/matrix-operations.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {            const matrixRowsSelect = document.getElementById('matrix-rows');            const outputFormatSelect = document.getElementById('output-format');
+            const generateMatrixBtn = document.getElementById('generate-matrix');
+            const matrixContainer = document.getElementById('matrix-container');
+            const inverseBtn = document.getElementById('inverse-btn');
+            const clearBtn = document.getElementById('clear-btn');
+            const invertibleSection = document.getElementById('invertible-section');
+            const notInvertibleSection = document.getElementById('not-invertible-section');
+            const stepsSection = document.getElementById('steps-section');
+            const stepsContainer = document.getElementById('steps-container');
+            const resultSection = document.getElementById('result-section');
+            const resultMatrixContainer = document.getElementById('result-matrix-container');
+            
+            // 初始化一个3×3矩阵
+            generateMatrix(3);
+            
+            // 生成矩阵输入
+            function generateMatrix(size) {
+                matrixContainer.innerHTML = '';
+                
+                const matrixTable = document.createElement('table');
+                matrixTable.className = 'border-collapse';
+                
+                for (let i = 0; i < size; i++) {
+                    const row = document.createElement('tr');
+                    for (let j = 0; j < size; j++) {
+                        const cell = document.createElement('td');
+                        cell.className = 'p-1';
+                        const input = document.createElement('input');
+                        input.type = 'text';
+                        input.className = 'matrix-input mobile-input';
+                        input.id = `matrix-${i}-${j}`;
+                        input.value = '';
+                        input.placeholder = '0 或 1/2';
+                        cell.appendChild(input);
+                        row.appendChild(cell);
+                    }
+                    matrixTable.appendChild(row);
+                }
+                
+                matrixContainer.appendChild(matrixTable);
+                
+                // 重置结果区域
+                invertibleSection.classList.add('hidden');
+                notInvertibleSection.classList.add('hidden');
+                stepsSection.classList.add('hidden');
+                resultSection.classList.add('hidden');
+            }
+            
+            // 获取矩阵数据
+            function getMatrixData() {
+                console.log('开始获取矩阵数据...');
+                
+                // 确保matrixRowsSelect存在且有value属性
+                console.log('matrixRowsSelect元素:', matrixRowsSelect);
+                
+                if (!matrixRowsSelect || matrixRowsSelect.value === undefined) {
+                    console.error('矩阵行数选择器不存在或无效');
+                    return null;
+                }
+                
+                const size = parseInt(matrixRowsSelect.value);
+                console.log('矩阵大小:', size);
+                
+                // 验证size是有效数字且为正整数
+                if (isNaN(size) || size <= 0) {
+                    console.error('无效的矩阵大小:', matrixRowsSelect.value);
+                    return null;
+                }
+                
+                const matrix = [];
+                console.log('创建空矩阵');
+                
+                // 创建临时MatrixOperations实例用于类型转换
+                const tempOps = new MatrixOperations();
+                tempOps.setFormatType('rational'); // 使用有理数格式进行类型转换
+                
+                for (let i = 0; i < size; i++) {
+                    matrix[i] = [];
+                    console.log(`创建第${i+1}行`);
+                    
+                    for (let j = 0; j < size; j++) {
+                        const inputId = `matrix-${i}-${j}`;
+                        const input = document.getElementById(inputId);
+                        
+                        // 确保input元素存在
+                        console.log(`查找输入元素: ${inputId}`, input);
+                        
+                        if (!input) {
+                            console.error(`矩阵元素输入框不存在: ${inputId}`);
+                            continue;
+                        }
+                        
+                        const value = input.value.trim();
+                        
+                        if (!value) {
+                            // 允许空输入，默认为0
+                            matrix[i][j] = 0;
+                            console.log(`设置matrix[${i}][${j}] = 0 (空输入)`);
+                            continue;
+                        }
+                        
+                        try {
+                            // 转换为适当的类型（数字或分数）
+                            matrix[i][j] = tempOps.convertToAppropriateType(value, true);
+                            console.log(`设置matrix[${i}][${j}] = ${matrix[i][j]}`);
+                        } catch (e) {
+                            console.error(`转换矩阵元素[${i}][${j}]时出错:`, e);
+                            matrix[i][j] = 0;
+                        }
+                    }
+                }
+                
+                // 详细验证矩阵结构
+                console.log('矩阵创建完成，开始验证结构:', JSON.stringify(matrix));
+                console.log('matrix类型:', typeof matrix);
+                console.log('matrix是数组:', Array.isArray(matrix));
+                console.log('matrix长度:', matrix.length);
+                
+                // 验证每一行
+                let allRowsValid = true;
+                for (let i = 0; i < matrix.length; i++) {
+                    const row = matrix[i];
+                    console.log(`行${i}类型:`, typeof row);
+                    console.log(`行${i}是数组:`, Array.isArray(row));
+                    console.log(`行${i}长度:`, row?.length);
+                    
+                    if (!row || !Array.isArray(row)) {
+                        console.error(`矩阵第${i}行不是有效数组:`, row);
+                        allRowsValid = false;
+                    }
+                }
+                
+                if (!Array.isArray(matrix) || matrix.length === 0 || !allRowsValid) {
+                    console.error('生成的矩阵无效');
+                    return null;
+                }
+                
+                console.log('矩阵验证通过，返回完整矩阵');
+                return matrix;
+            }
+            
+            // 渲染矩阵（用于结果显示）
+            function renderMatrix(matrix) {
+                // 全面的输入验证
+                if (!matrix || !Array.isArray(matrix) || matrix.length === 0) {
+                    return '<p class="text-red-500">无效的矩阵数据</p>';
+                }
+                
+                let html = '<table class="border-collapse inline-block">';
+                
+                // 创建MatrixOperations实例用于格式化数字
+                const formatOps = new MatrixOperations();
+                const formatType = outputFormatSelect.value || 'rational';
+                formatOps.setFormatType(formatType);
+                
+                for (let i = 0; i < matrix.length; i++) {
+                    // 验证每一行
+                    if (!matrix[i] || !Array.isArray(matrix[i])) {
+                        html += '<tr><td>无效行</td></tr>';
+                        continue;
+                    }
+                    
+                    html += '<tr>';
+                    for (let j = 0; j < matrix[i].length; j++) {
+                        // 安全地格式化值
+                        let formattedValue = '0';
+                        try {
+                            formattedValue = formatOps.formatNumber(matrix[i][j]);
+                        } catch (e) {
+                            console.error(`无法格式化值[${i}][${j}]`, matrix[i][j]);
+                        }
+                        html += `<td class="p-1"><div class="min-w-[56px] md:min-w-[64px] h-8 md:h-10 bg-gray-50 rounded border text-center flex items-center justify-center font-medium text-sm">${formattedValue}</div></td>`;
+                    }
+                    html += '</tr>';
+                }
+                
+                html += '</table>';
+                return html;
+            }
+            
+            // 渲染增广矩阵（用于步骤显示）
+            function renderAugmentedMatrix(matrix) {
+                // 全面的输入验证
+                if (!matrix || !Array.isArray(matrix)) {
+                    console.error('renderAugmentedMatrix: 无效的矩阵参数', matrix);
+                    return '<p class="text-red-500">无效的矩阵数据</p>';
+                }
+                
+                if (matrix.length === 0) {
+                    console.error('renderAugmentedMatrix: 空矩阵');
+                    return '<p class="text-red-500">空矩阵</p>';
+                }
+                
+                console.log('renderAugmentedMatrix: 输入矩阵', matrix);
+                console.log('renderAugmentedMatrix: 矩阵行数', matrix.length);
+                console.log('renderAugmentedMatrix: 第一行行长度', matrix[0]?.length);
+                
+                let html = '<table class="border-collapse inline-block">';
+                
+                // 创建MatrixOperations实例用于格式化数字
+                const formatOps = new MatrixOperations();
+                
+                for (let i = 0; i < matrix.length; i++) {
+                    // 验证每一行
+                    if (!matrix[i] || !Array.isArray(matrix[i])) {
+                        console.error(`renderAugmentedMatrix: 第${i}行无效`, matrix[i]);
+                        html += '<tr><td>无效行</td></tr>';
+                        continue;
+                    }
+                    
+                    html += '<tr>';
+                    
+                    // 安全地获取行长度
+                    const rowLength = matrix[i].length;
+                    
+                    // 计算矩阵阶数（假设是方阵）
+                    const n = Math.floor(rowLength / 2);
+                    console.log(`renderAugmentedMatrix: 渲染行${i}，长度=${rowLength}，矩阵阶数=${n}`);
+                    
+                    // 渲染左侧矩阵部分 (前n列)
+                    for (let j = 0; j < n; j++) {
+                        // 安全地格式化值
+                        let formattedValue = '0';
+                        try {
+                            formattedValue = formatOps.formatNumber(matrix[i][j]);
+                        } catch (e) {
+                            console.error(`renderAugmentedMatrix: 无法格式化值[${i}][${j}]`, matrix[i][j], e);
+                        }
+                        html += `<td class="p-1"><div class="min-w-[40px] md:min-w-[48px] h-7 md:h-8 bg-gray-50 rounded border text-center flex items-center justify-center text-xs md:text-sm">${formattedValue}</div></td>`;
+                    }
+                    
+                    // 添加分隔线列
+                    html += `<td class="p-1 pl-2"><div class="min-w-[12px] h-7 md:h-8 border-l-2 border-gray-400 bg-transparent"></div></td>`;
+                    
+                    // 渲染右侧矩阵部分 (后n列，确保显示完整的单位矩阵)
+                    for (let j = n; j < rowLength; j++) {
+                        // 安全地格式化值
+                        let formattedValue = '0';
+                        try {
+                            formattedValue = formatOps.formatNumber(matrix[i][j]);
+                        } catch (e) {
+                            console.error(`renderAugmentedMatrix: 无法格式化值[${i}][${j}]`, matrix[i][j], e);
+                        }
+                        html += `<td class="p-1 pl-3"><div class="min-w-[40px] md:min-w-[48px] h-7 md:h-8 bg-gray-50 rounded border text-center flex items-center justify-center text-xs md:text-sm">${formattedValue}</div></td>`;
+                    }
+                    
+                    html += '</tr>';
+                }
+                
+                html += '</table>';
+                console.log('renderAugmentedMatrix: 生成的HTML表格已完成');
+                return html;
+            }
+            
+            // 生成矩阵按钮事件
+            generateMatrixBtn.addEventListener('click', function() {
+                const size = parseInt(matrixRowsSelect.value);
+                generateMatrix(size);
+            });
+            
+            // 计算逆矩阵按钮事件
+              inverseBtn.addEventListener('click', function() {
+                 console.log('开始计算逆矩阵...');
+                 
+                 try {
+                     console.log('调用getMatrixData()获取矩阵数据...');
+                     const matrix = getMatrixData();
+                       
+                     console.log('获取矩阵数据结果:', JSON.stringify(matrix));
+                     console.log('矩阵类型:', typeof matrix);
+                     console.log('是否为数组:', Array.isArray(matrix));
+                      
+                     // 增强的矩阵验证，防止访问undefined的length属性
+                     if (!matrix) {
+                         console.log('矩阵数据无效，提前返回');
+                         alert('请输入有效的数字！');
+                         return;
+                     }
+                      
+                     if (!Array.isArray(matrix)) {
+                         console.error('矩阵不是有效数组:', matrix);
+                         alert('错误：无效的矩阵数据格式！');
+                         return;
+                     }
+                      
+                     if (matrix.length === 0) {
+                         console.error('矩阵为空数组');
+                         alert('错误：矩阵不能为空！');
+                         return;
+                     }
+                      
+                     // 验证每一行
+                     for (let i = 0; i < matrix.length; i++) {
+                         if (!matrix[i]) {
+                             console.error(`矩阵第${i+1}行为null或undefined`);
+                             alert(`错误：矩阵第${i+1}行数据无效！`);
+                             return;
+                         }
+                          
+                         if (!Array.isArray(matrix[i])) {
+                             console.error(`矩阵第${i+1}行不是数组`, matrix[i]);
+                             alert(`错误：矩阵第${i+1}行不是有效数组！`);
+                             return;
+                         }
+                     }
+                      
+                     // 执行矩阵求逆
+                     console.log('创建MatrixOperations实例...');
+                     const matrixOps = new MatrixOperations();
+                     const formatType = outputFormatSelect.value || 'rational';
+                     matrixOps.setFormatType(formatType);
+                     console.log('输出格式已设置为:', formatType);
+                       
+                     console.log('调用calculateInverse()方法...');
+                     const result = matrixOps.calculateInverse(matrix);
+                      
+                     console.log('计算结果:', result);
+                       
+                     if (result && result.isInvertible !== undefined) {
+                         console.log('矩阵可逆状态:', result.isInvertible);
+                         if (result.isInvertible) {
+                             // 矩阵可逆
+                             invertibleSection.classList.remove('hidden');
+                             notInvertibleSection.classList.add('hidden');
+                             stepsSection.classList.remove('hidden');
+                             resultSection.classList.remove('hidden');
+                              
+                             // 渲染步骤
+                             console.log('渲染计算步骤...');
+                             stepsContainer.innerHTML = '';
+                             if (result.steps && Array.isArray(result.steps)) {
+                                 console.log('步骤数量:', result.steps.length);
+                                 result.steps.forEach((step, index) => {
+                                     console.log(`步骤${index+1}:`, step);
+                                     const stepElement = document.createElement('div');
+                                     stepElement.className = 'step-container';
+                                     // 验证matrix是否存在且有效（使用正确的属性名）
+                                     const matrixHtml = (step && step.matrix) ? 
+                                         renderAugmentedMatrix(step.matrix) : 
+                                         '<p class="text-yellow-500">该步骤没有矩阵数据</p>';
+                                      
+                                     stepElement.innerHTML = `
+                                         <h4 class="font-bold mb-2 text-sm md:text-base">步骤 ${index + 1}: ${step.description || '无描述'}</h4>
+                                         <div class="flex justify-center mt-3 overflow-x-auto">
+                                             ${matrixHtml}
+                                         </div>
+                                     `;
+                                     stepsContainer.appendChild(stepElement);
+                                 });
+                             }
+                              
+                             // 渲染逆矩阵
+                             console.log('渲染逆矩阵结果...');
+                             if (result.inverse) {
+                                 resultMatrixContainer.innerHTML = renderMatrix(result.inverse);
+                             }
+                         } else {
+                             // 矩阵不可逆
+                             invertibleSection.classList.add('hidden');
+                             notInvertibleSection.classList.remove('hidden');
+                             stepsSection.classList.add('hidden');
+                             resultSection.classList.add('hidden');
+                         }
+                          
+                         // 平滑滚动到结果区域
+                         document.querySelector('#invertible-section, #not-invertible-section').scrollIntoView({ behavior: 'smooth' });
+                     } else {
+                         throw new Error('计算结果格式异常');
+                     }
+                  } catch (error) {
+                     console.error('错误详情:', error);
+                     console.error('错误堆栈:', error.stack);
+                     console.error('错误发生在:', error.fileName || 'unknown file', error.lineNumber || 'unknown line');
+                     alert('计算过程中发生错误: ' + error.message + '\n请查看控制台以获取详细信息');
+                  }
+                  console.log('计算结束');
+            });
+            
+            // 清空按钮事件
+            clearBtn.addEventListener('click', function() {
+                const size = parseInt(matrixRowsSelect.value);
+                
+                // 清空矩阵
+                for (let i = 0; i < size; i++) {
+                    for (let j = 0; j < size; j++) {
+                        const input = document.getElementById(`matrix-${i}-${j}`);
+                        if (input) input.value = '';
+                    }
+                }
+                
+                // 重置结果区域
+                invertibleSection.classList.add('hidden');
+                notInvertibleSection.classList.add('hidden');
+                stepsSection.classList.add('hidden');
+                resultSection.classList.add('hidden');
+            });
+        });
+    </script>
+</body>
+</html>

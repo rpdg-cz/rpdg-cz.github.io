@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>矩阵乘法 - 高等代数计算器</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b82f6',
+                        secondary: '#64748b',
+                        accent: '#f97316',
+                        dark: '#1e293b',
+                        light: '#f8fafc'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .matrix-input {
+                @apply min-w-[64px] h-10 text-center border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300;
+            }
+            .result-matrix {
+                @apply bg-white rounded-xl shadow-md p-6 md:p-8;
+            }
+            .btn-primary {
+                @apply bg-primary text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 hover:bg-primary/90 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary/50;
+            }
+            .btn-secondary {
+                @apply bg-secondary text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 hover:bg-secondary/90 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-secondary/50;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-light to-gray-100 min-h-screen font-sans text-dark">
+    <!-- 导航栏 -->
+    <nav class="bg-white shadow-md">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <a href="index.html" class="flex items-center space-x-2">
+                    <i class="fa fa-calculator text-primary text-2xl"></i>
+                    <h1 class="text-xl font-bold text-primary">高等代数计算器</h1>
+                </a>
+            </div>
+            <div class="hidden md:flex space-x-6">
+                <a href="index.html" class="text-secondary hover:text-primary transition-colors duration-300">主页</a>
+                <a href="index.html#features" class="text-secondary hover:text-primary transition-colors duration-300">功能</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4 py-8">
+    <div class="max-w-5xl mx-auto">
+        <div class="bg-white rounded-xl shadow-md p-6 md:p-8 mb-8">
+            <h2 class="text-2xl md:text-3xl font-bold mb-6 text-center">矩阵乘法</h2>
+            <p class="text-secondary text-center mb-4">输入2个6×6以内的矩阵，计算它们的乘积（如果可乘）</p>
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
+                <h3 class="font-semibold text-blue-800">输入说明：</h3>
+                <ul class="list-disc pl-6 text-blue-700">
+                    <li>支持整数输入，例如：123</li>
+                    <li>支持分数输入，格式为：分子/分母，例如：1/2、-3/4</li>
+                    <li>输入框为空时默认值为0</li>
+                    <li>矩阵A的列数必须等于矩阵B的行数才能相乘</li>
+                </ul>
+            </div>
+
+                <!-- 矩阵大小选择 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                    <div>
+                        <h3 class="text-lg font-bold mb-4 text-center">矩阵 A</h3>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="matrix-a-rows" class="block text-secondary mb-2">行数 (1-6):</label>
+                                <select id="matrix-a-rows" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300">
+                                    <option value="2">2行</option>
+                                    <option value="3" selected>3行</option>
+                                    <option value="4">4行</option>
+                                    <option value="5">5行</option>
+                                    <option value="6">6行</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="matrix-a-cols" class="block text-secondary mb-2">列数 (1-6):</label>
+                                <select id="matrix-a-cols" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300">
+                                    <option value="2">2列</option>
+                                    <option value="3" selected>3列</option>
+                                    <option value="4">4列</option>
+                                    <option value="5">5列</option>
+                                    <option value="6">6列</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-lg font-bold mb-4 text-center">矩阵 B</h3>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="matrix-b-rows" class="block text-secondary mb-2">行数 (1-6):</label>
+                                <select id="matrix-b-rows" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300">
+                                    <option value="2">2行</option>
+                                    <option value="3" selected>3行</option>
+                                    <option value="4">4行</option>
+                                    <option value="5">5行</option>
+                                    <option value="6">6行</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="matrix-b-cols" class="block text-secondary mb-2">列数 (1-6):</label>
+                                <select id="matrix-b-cols" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300">
+                                    <option value="2">2列</option>
+                                    <option value="3" selected>3列</option>
+                                    <option value="4">4列</option>
+                                    <option value="5">5列</option>
+                                    <option value="6">6列</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-center mb-8">
+                    <button id="generate-matrices" class="btn-secondary">生成矩阵</button>
+                </div>
+
+                <!-- 矩阵输入区域 -->
+                <div class="flex flex-wrap justify-center gap-8 mb-8">
+                    <div class="min-w-[200px] max-w-full flex-shrink-0 flex flex-col items-center">
+                        <h3 class="text-lg font-bold mb-4 text-center">矩阵 A</h3>
+                        <div id="matrix-a-container" class="flex justify-center overflow-auto p-2">
+                            <!-- 矩阵A输入将在这里动态生成 -->
+                        </div>
+                    </div>
+                    
+                    <div class="min-w-[200px] max-w-full flex-shrink-0 flex flex-col items-center">
+                        <h3 class="text-lg font-bold mb-4 text-center">矩阵 B</h3>
+                        <div id="matrix-b-container" class="flex justify-center overflow-auto p-2">
+                            <!-- 矩阵B输入将在这里动态生成 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 操作按钮 -->
+                <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+                    <button id="multiply-btn" class="btn-primary">计算乘积</button>
+                    <button id="clear-btn" class="btn-secondary">清空输入</button>
+                    <button onclick="window.location.href='index.html'" class="btn-secondary">返回主页</button>
+                </div>
+            </div>
+
+            <!-- 结果展示区域 -->
+            <div id="result-section" class="hidden">
+                <div class="result-matrix">
+                    <h3 class="text-xl font-bold mb-6 text-center">矩阵乘积 C = A × B</h3>
+                    <div id="result-matrix-container" class="flex justify-center"></div>
+                    
+                    <!-- 继续计算功能区域 -->
+                    <div id="continue-section" class="mt-8">
+                        <h4 class="text-lg font-semibold mb-4 text-center">继续计算</h4>
+                        <div class="flex flex-col items-center space-y-4">
+                            <div class="flex items-center space-x-6">
+                                <label class="inline-flex items-center">
+                                    <input type="radio" name="continue-as" value="left" class="w-4 h-4 text-primary focus:ring-primary border-gray-300">
+                                    <span class="ml-2 text-gray-700">作为左矩阵 (C × B')</span>
+                                </label>
+                                <label class="inline-flex items-center">
+                                    <input type="radio" name="continue-as" value="right" class="w-4 h-4 text-primary focus:ring-primary border-gray-300">
+                                    <span class="ml-2 text-gray-700">作为右矩阵 (A' × C)</span>
+                                </label>
+                            </div>
+                            <button id="continue-calc-btn" class="btn-primary min-w-[160px]">
+                                <i class="fa fa-refresh mr-2"></i>继续计算
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 错误提示区域 -->
+            <div id="error-section" class="hidden">
+                <div class="bg-red-50 border border-red-200 rounded-xl p-6 md:p-8">
+                    <h3 class="text-xl font-bold mb-4 text-red-600 text-center">矩阵无法相乘</h3>
+                    <p class="text-red-500 text-center">矩阵 A 的列数（${matrixACols}）必须等于矩阵 B 的行数（${matrixBRows}）才能相乘。</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-dark text-white py-8 mt-16">
+        <div class="container mx-auto px-4">
+            <div class="text-center">
+                <div class="flex items-center justify-center space-x-2 mb-4">
+                    <i class="fa fa-calculator text-primary text-xl"></i>
+                    <span class="font-bold text-lg">高等代数计算器</span>
+                </div>
+                <p class="text-gray-400 mb-4">© 2024 高等代数计算器. 保留所有权利.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="lib/matrix-operations.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取DOM元素引用
+            const matrixARowsSelect = document.getElementById('matrix-a-rows');
+            const matrixAColsSelect = document.getElementById('matrix-a-cols');
+            const matrixBRowsSelect = document.getElementById('matrix-b-rows');
+            const matrixBColsSelect = document.getElementById('matrix-b-cols');
+            const generateMatricesBtn = document.getElementById('generate-matrices');
+            const multiplyBtn = document.getElementById('multiply-btn');
+            const clearBtn = document.getElementById('clear-btn');
+            const matrixAContainer = document.getElementById('matrix-a-container');
+            const matrixBContainer = document.getElementById('matrix-b-container');
+            const resultSection = document.getElementById('result-section');
+            const resultMatrixContainer = document.getElementById('result-matrix-container');
+            const errorSection = document.getElementById('error-section');
+            const continueCalcBtn = document.getElementById('continue-calc-btn');
+            
+            // 保存当前矩阵的状态
+            let currentMatrixState = {
+                rowsA: 0,
+                colsA: 0,
+                rowsB: 0,
+                colsB: 0
+            };
+            
+            // 保存上次计算结果
+            let lastCalculationResult = null;
+            
+            // 初始化两个3×3矩阵
+            generateMatrix('a', 3, 3);
+            generateMatrix('b', 3, 3);
+            
+            // 生成矩阵输入
+            function generateMatrix(prefix, rows, cols) {
+                const container = prefix === 'a' ? matrixAContainer : matrixBContainer;
+                container.innerHTML = '';
+                
+                const matrixTable = document.createElement('table');
+                matrixTable.className = 'border-collapse';
+                
+                for (let i = 0; i < rows; i++) {
+                    const row = document.createElement('tr');
+                    for (let j = 0; j < cols; j++) {
+                        const cell = document.createElement('td');
+                        cell.className = 'p-1';
+                        const input = document.createElement('input');
+                        input.type = 'text';
+                        input.className = 'matrix-input';
+                        input.id = `matrix-${prefix}-${i}-${j}`;
+                        input.value = '';
+                        input.placeholder = '0 或 1/2';
+                        cell.appendChild(input);
+                        row.appendChild(cell);
+                    }
+                    matrixTable.appendChild(row);
+                }
+                
+                container.appendChild(matrixTable);
+            }
+            
+            // 获取矩阵数据
+            function getMatrixData(prefix) {
+                const rows = prefix === 'a' ? parseInt(matrixARowsSelect.value) : parseInt(matrixBRowsSelect.value);
+                const cols = prefix === 'a' ? parseInt(matrixAColsSelect.value) : parseInt(matrixBColsSelect.value);
+                const matrix = [];
+                
+                for (let i = 0; i < rows; i++) {
+                    matrix[i] = [];
+                    for (let j = 0; j < cols; j++) {
+                        const input = document.getElementById(`matrix-${prefix}-${i}-${j}`);
+                        const value = input.value.trim();
+                        
+                        if (!value) {
+                            // 允许空输入，默认为0
+                            matrix[i][j] = 0;
+                            continue;
+                        }
+                        
+                        // 直接使用输入值（可能是分数形式）
+                        matrix[i][j] = value;
+                    }
+                }
+                
+                return matrix;
+            }
+            
+            // 渲染矩阵（用于结果显示）
+            function renderMatrix(matrix) {
+                let html = '<table class="border-collapse inline-block">';
+                
+                // 创建MatrixOperations实例用于格式化数字
+                const formatOps = new MatrixOperations();
+                
+                for (let i = 0; i < matrix.length; i++) {
+                    html += '<tr>';
+                    for (let j = 0; j < matrix[i].length; j++) {
+                        const formattedValue = formatOps.formatNumber(matrix[i][j]);
+                        html += `<td class="p-1"><div class="min-w-[64px] h-10 bg-gray-50 rounded border text-center flex items-center justify-center font-medium">${formattedValue}</div></td>`;
+                    }
+                    html += '</tr>';
+                }
+                
+                html += '</table>';
+                return html;
+            }
+            
+            // 生成矩阵按钮事件
+            generateMatricesBtn.addEventListener('click', function() {
+                const matrixARows = parseInt(matrixARowsSelect.value);
+                const matrixACols = parseInt(matrixAColsSelect.value);
+                const matrixBRows = parseInt(matrixBRowsSelect.value);
+                const matrixBCols = parseInt(matrixBColsSelect.value);
+                
+                generateMatrix('a', matrixARows, matrixACols);
+                generateMatrix('b', matrixBRows, matrixBCols);
+                
+                resultSection.classList.add('hidden');
+                errorSection.classList.add('hidden');
+                lastCalculationResult = null;
+            });
+            
+            // 计算乘积按钮事件
+            multiplyBtn.addEventListener('click', function() {
+                const matrixA = getMatrixData('a');
+                const matrixB = getMatrixData('b');
+                
+                if (!matrixA || !matrixB) {
+                    alert('请输入有效的数字！');
+                    return;
+                }
+                
+                // 检查矩阵是否可乘
+                const matrixACols = parseInt(matrixAColsSelect.value);
+                const matrixBRows = parseInt(matrixBRowsSelect.value);
+                
+                if (matrixACols !== matrixBRows) {
+                    const errorMessage = `矩阵 A 的列数（${matrixACols}）必须等于矩阵 B 的行数（${matrixBRows}）才能相乘。`;
+                    document.querySelector('#error-section p').textContent = errorMessage;
+                    errorSection.classList.remove('hidden');
+                    resultSection.classList.add('hidden');
+                    return;
+                }
+                
+                // 执行矩阵乘法
+                const matrixOps = new MatrixOperations();
+                matrixOps.setFormatType('rational'); // 使用有理数格式计算
+                try {
+                    const product = matrixOps.multiplyMatrices(matrixA, matrixB);
+                    
+                    // 保存结果用于继续计算
+                    lastCalculationResult = product.result;
+                    
+                    // 更新当前矩阵状态
+                    currentMatrixState.rowsA = parseInt(matrixARowsSelect.value);
+                    currentMatrixState.colsA = matrixACols;
+                    currentMatrixState.rowsB = matrixBRows;
+                    currentMatrixState.colsB = parseInt(matrixBColsSelect.value);
+                    
+                    // 显示结果
+                    resultMatrixContainer.innerHTML = renderMatrix(product.result);
+                    resultSection.classList.remove('hidden');
+                    errorSection.classList.add('hidden');
+                    
+                    // 平滑滚动到结果区域
+                    resultSection.scrollIntoView({ behavior: 'smooth' });
+                } catch (error) {
+                    alert('计算过程中发生错误: ' + error.message);
+                }
+            });
+            
+            // 清空按钮事件
+            clearBtn.addEventListener('click', function() {
+                const matrixARows = parseInt(matrixARowsSelect.value);
+                const matrixACols = parseInt(matrixAColsSelect.value);
+                const matrixBRows = parseInt(matrixBRowsSelect.value);
+                const matrixBCols = parseInt(matrixBColsSelect.value);
+                
+                // 清空矩阵A
+                for (let i = 0; i < matrixARows; i++) {
+                    for (let j = 0; j < matrixACols; j++) {
+                        const input = document.getElementById(`matrix-a-${i}-${j}`);
+                        if (input) input.value = '';
+                    }
+                }
+                
+                // 清空矩阵B
+                for (let i = 0; i < matrixBRows; i++) {
+                    for (let j = 0; j < matrixBCols; j++) {
+                        const input = document.getElementById(`matrix-b-${i}-${j}`);
+                        if (input) input.value = '';
+                    }
+                }
+                
+                resultSection.classList.add('hidden');
+                errorSection.classList.add('hidden');
+                lastCalculationResult = null;
+            });
+            
+            // 将结果填充到指定矩阵
+            function fillMatrixWithResult(prefix, resultMatrix) {
+                const rows = resultMatrix.length;
+                const cols = resultMatrix[0].length;
+                
+                // 创建MatrixOperations实例用于格式化数字
+                const formatOps = new MatrixOperations();
+                let filledCount = 0;
+                
+                for (let i = 0; i < rows; i++) {
+                    for (let j = 0; j < cols; j++) {
+                        const inputId = `matrix-${prefix}-${i}-${j}`;
+                        const input = document.getElementById(inputId);
+                        if (input) {
+                            // 格式化为数字值
+                            let formattedValue;
+                            try {
+                                // 直接使用值而不进行额外格式化，避免转换问题
+                                if (typeof resultMatrix[i][j] === 'object' && resultMatrix[i][j] !== null) {
+                                    // 如果是分数对象，格式化为字符串
+                                    formattedValue = resultMatrix[i][j].toString();
+                                } else {
+                                    formattedValue = resultMatrix[i][j].toString();
+                                }
+                                input.value = formattedValue;
+                                filledCount++;
+                            } catch (error) {
+                                console.log(`填充单元格(${i},${j})时出错:`, error);
+                                // 使用备用方法，直接设置原始值
+                                input.value = resultMatrix[i][j];
+                            }
+                        } else {
+                            console.log(`未找到输入框: ${inputId}`);
+                        }
+                    }
+                }
+                
+                console.log(`成功填充了 ${filledCount} 个单元格`);
+            }
+            
+            // 处理继续计算功能
+            continueCalcBtn.addEventListener('click', function() {
+                if (!lastCalculationResult) {
+                    alert('没有可用于继续计算的结果。');
+                    return;
+                }
+                
+                // 获取用户选择
+                const continueAs = document.querySelector('input[name="continue-as"]:checked');
+                if (!continueAs) {
+                    alert('请选择将结果作为左矩阵或右矩阵。');
+                    return;
+                }
+                
+                const resultRows = lastCalculationResult.length;
+                const resultCols = lastCalculationResult[0].length;
+                
+                // 清空结果区域
+                resultSection.classList.add('hidden');
+                
+                // 保存当前的选择，以便在setTimeout中使用
+                const selectedMatrix = continueAs.value;
+                const resultToUse = lastCalculationResult;
+                
+                if (selectedMatrix === 'left') {
+                    // 将结果作为左矩阵 (C × B')
+                    // 设置矩阵A的尺寸为结果矩阵的尺寸
+                    matrixARowsSelect.value = resultRows;
+                    matrixAColsSelect.value = resultCols;
+                    
+                    // 生成新的矩阵A和B
+                    generateMatricesBtn.click();
+                    
+                    // 使用setTimeout确保DOM已更新后再填充数据
+                    setTimeout(() => {
+                        fillMatrixWithResult('a', resultToUse);
+                    }, 100);
+                } else if (selectedMatrix === 'right') {
+                    // 将结果作为右矩阵 (A' × C)
+                    // 设置矩阵B的尺寸为结果矩阵的尺寸
+                    matrixBRowsSelect.value = resultRows;
+                    matrixBColsSelect.value = resultCols;
+                    
+                    // 生成新的矩阵A和B
+                    generateMatricesBtn.click();
+                    
+                    // 使用setTimeout确保DOM已更新后再填充数据
+                    setTimeout(() => {
+                        fillMatrixWithResult('b', resultToUse);
+                    }, 100);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

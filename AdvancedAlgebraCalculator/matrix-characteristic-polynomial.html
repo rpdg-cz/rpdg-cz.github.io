@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>特征多项式计算 - 高等代数计算器</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b82f6',
+                        secondary: '#64748b',
+                        accent: '#f97316',
+                        dark: '#1e293b',
+                        light: '#f8fafc'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <!-- MathJax 配置（LaTeX 支持） -->
+    <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$','$$'], ['\\[','\\]']],
+        macros: { norm: ["\\left\\lVert#1\\right\\rVert", 1] }
+      },
+      options: { skipHtmlTags: ['script','style','textarea','pre'] }
+    };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .matrix-input {
+                @apply min-w-[64px] h-10 text-center border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300;
+            }
+            .result-matrix {
+                @apply bg-white rounded-xl shadow-md p-6 md:p-8;
+            }
+            .btn-primary {
+                @apply bg-primary text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 hover:bg-primary/90 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary/50;
+            }
+            .btn-secondary {
+                @apply bg-secondary text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 hover:bg-secondary/90 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-secondary/50;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-light to-gray-100 min-h-screen font-sans text-dark">
+    <!-- 导航栏 -->
+    <nav class="bg-white shadow-md">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <a href="index.html" class="flex items-center space-x-2">
+                    <i class="fa fa-calculator text-primary text-2xl"></i>
+                    <h1 class="text-xl font-bold text-primary">高等代数计算器</h1>
+                </a>
+            </div>
+            <div class="hidden md:flex space-x-6">
+                <a href="index.html" class="text-secondary hover:text-primary transition-colors duration-300">主页</a>
+                <a href="index.html#features" class="text-secondary hover:text-primary transition-colors duration-300">功能</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4 py-8">
+    <div class="max-w-5xl mx-auto">
+        <div class="bg-white rounded-xl shadow-md p-6 md:p-8 mb-8">
+            <h2 class="text-2xl md:text-3xl font-bold mb-6 text-center">特征多项式计算</h2>
+            <p class="text-secondary text-center mb-4">输入一个6×6以内的方阵，计算它的特征多项式</p>
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
+                <h3 class="font-semibold text-blue-800">输入说明：</h3>
+                <ul class="list-disc pl-6 text-blue-700">
+                    <li>支持整数输入，例如：123</li>
+                    <li>支持分数输入，格式为：分子/分母，例如：1/2、-3/4</li>
+                    <li>输入框为空时默认值为0</li>
+                    <li>仅支持方阵（行数等于列数）</li>
+                </ul>
+            </div>
+
+                <!-- 矩阵大小选择 -->
+                <div class="flex flex-col items-center mb-8">
+                    <h3 class="text-lg font-bold mb-4">矩阵大小 (1-6):</h3>
+                    <select id="matrix-size" class="w-40 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300">
+                        <option value="2">2×2</option>
+                        <option value="3" selected>3×3</option>
+                        <option value="4">4×4</option>
+                        <option value="5">5×5</option>
+                        <option value="6">6×6</option>
+                    </select>
+                </div>
+
+                <div class="flex justify-center mb-8">
+                    <button id="generate-matrix" class="btn-secondary">生成矩阵</button>
+                </div>
+
+                <!-- 矩阵输入区域 -->
+                <div class="flex flex-wrap justify-center gap-8 mb-8">
+                    <div class="min-w-[200px] max-w-full flex-shrink-0 flex flex-col items-center">
+                        <h3 class="text-lg font-bold mb-4 text-center">矩阵 A</h3>
+                        <div id="matrix-a-container" class="flex justify-center overflow-auto p-2">
+                            <!-- 矩阵A输入将在这里动态生成 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 操作按钮 -->
+                <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+                    <button id="calculate-btn" class="btn-primary">计算特征多项式</button>
+                    <button id="clear-btn" class="btn-secondary">清空输入</button>
+                    <button onclick="window.location.href='index.html'" class="btn-secondary">返回主页</button>
+                </div>
+            </div>
+
+            <!-- 结果展示区域 -->
+            <div id="result-section" class="hidden">
+                <div class="result-matrix">
+                    <h3 class="text-xl font-bold mb-6 text-center">特征多项式</h3>
+                    <div id="result-polynomial-container" class="flex justify-center p-4 bg-gray-50 rounded-lg mb-6"></div>
+                    
+                    <!-- 计算步骤展示 -->
+                    <div id="steps-section" class="mt-8">
+                        <h4 class="text-lg font-semibold mb-4 text-center">计算步骤</h4>
+                        <div id="steps-container" class="bg-gray-50 rounded-lg p-4 overflow-auto max-h-96"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 错误提示区域 -->
+            <div id="error-section" class="hidden">
+                <div class="bg-red-50 border border-red-200 rounded-xl p-6 md:p-8">
+                    <h3 class="text-xl font-bold mb-4 text-red-600 text-center">计算错误</h3>
+                    <p id="error-message" class="text-red-500 text-center"></p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- JavaScript -->
+    <script src="lib/matrix-operations.js"></script>
+    <script>
+        // 初始化变量
+        let matrixSize = 3;
+        let matrixOperations = new MatrixOperations();
+        matrixOperations.setFormatType('rational'); // 使用有理数格式计算
+        
+        // 新增：错误与状态控制函数（解决 hideError 未定义的问题）
+        function hideError() {
+            const errSec = document.getElementById('error-section');
+            const resultSec = document.getElementById('result-section');
+            const errMsg = document.getElementById('error-message');
+            if (errMsg) errMsg.textContent = '';
+            if (errSec) errSec.classList.add('hidden');
+            if (resultSec) resultSec.classList.add('hidden');
+        }
+
+        function displayError(message) {
+            const errSec = document.getElementById('error-section');
+            const errMsg = document.getElementById('error-message');
+            const resultSec = document.getElementById('result-section');
+            if (errMsg) errMsg.textContent = message || '发生未知错误';
+            if (errSec) errSec.classList.remove('hidden');
+            if (resultSec) resultSec.classList.add('hidden');
+            console.error(message);
+        }
+
+        // 生成矩阵输入（根据当前 matrixSize）
+        function generateMatrixInput() {
+            hideError();
+            // 校验并修正 matrixSize（确保在 1-6 范围内）
+            matrixSize = parseInt(document.getElementById('matrix-size')?.value, 10) || matrixSize;
+            matrixSize = Math.min(6, Math.max(1, matrixSize));
+
+            const container = document.getElementById('matrix-a-container');
+            if (!container) return;
+            container.innerHTML = '';
+            
+            const matrixTable = document.createElement('table');
+            matrixTable.className = 'border-collapse';
+
+            for (let i = 0; i < matrixSize; i++) {
+                const row = document.createElement('tr');
+                for (let j = 0; j < matrixSize; j++) {
+                    const cell = document.createElement('td');
+                    cell.className = 'p-1';
+
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.className = 'matrix-input';
+                    input.id = `matrix-a-${i}-${j}`;
+                    input.value = '0'; // 默认值为 0，避免空字符串问题
+
+                    cell.appendChild(input);
+                    row.appendChild(cell);
+                }
+                matrixTable.appendChild(row);
+            }
+            
+            container.appendChild(matrixTable);
+
+            // 生成新矩阵后，隐藏结果区并清除之前步骤
+            const resultSection = document.getElementById('result-section');
+            if (resultSection) resultSection.classList.add('hidden');
+            const stepsContainer = document.getElementById('steps-container');
+            if (stepsContainer) stepsContainer.innerHTML = '';
+            const resultContainer = document.getElementById('result-polynomial-container');
+            if (resultContainer) resultContainer.innerHTML = '';
+        }
+
+        // 读取矩阵输入
+        function readMatrixInput() {
+            // 同步 matrixSize 与选择框
+            matrixSize = parseInt(document.getElementById('matrix-size')?.value, 10) || matrixSize;
+            matrixSize = Math.min(6, Math.max(1, matrixSize));
+
+            const matrix = [];
+            for (let i = 0; i < matrixSize; i++) {
+                const row = [];
+                for (let j = 0; j < matrixSize; j++) {
+                    const input = document.getElementById(`matrix-a-${i}-${j}`);
+                    let value = input ? input.value.trim() : '0';
+                    
+                    if (value === '') {
+                        value = '0';
+                    }
+                    
+                    row.push(value);
+                }
+                matrix.push(row);
+            }
+            return matrix;
+        }
+        
+        // 显示结果（接受字符串或 calculateCharacteristicPolynomial 返回对象）
+        function displayResult(result) {
+            const container = document.getElementById('result-polynomial-container');
+            if (!container) return;
+            container.innerHTML = '';
+
+            let html = '';
+            // 支持直接传入对象（含 polynomialLatex）或字符串
+            if (result && typeof result === 'object' && result.polynomialLatex) {
+                // polynomialLatex 预期为带 $$ 的 LaTeX 字符串
+                html = String(result.polynomialLatex);
+            } else if (typeof result === 'string') {
+                // 作为纯文本显示并尝试自动包装为 LaTeX（对 x^n 形式）
+                let txt = result;
+                if (!containsLatexMarkers(txt)) {
+                    txt = autoWrapMath(txt);
+                }
+                // 包成块公式显示
+                html = `<div class="text-xl font-mono p-4">${txt}</div>`;
+            } else {
+                html = `<div class="text-xl font-mono p-4">0</div>`;
+            }
+
+            container.innerHTML = html;
+
+            // 确保结果区域可见
+            const resultSection = document.getElementById('result-section');
+            if (resultSection) resultSection.classList.remove('hidden');
+
+            // 触发 MathJax 渲染（异步）
+            try {
+                if (window.MathJax && MathJax.typesetPromise) {
+                    MathJax.typesetPromise();
+                }
+            } catch (e) {
+                console.warn('MathJax typeset failed:', e);
+            }
+        }
+
+        // 检查是否已有 LaTeX 标记
+        function containsLatexMarkers(text) { return /\$|\\\(|\\\[|\\begin\{/.test(text); }
+
+        // 自动包装常见数学片段为行内/块级 LaTeX（用于描述文本）
+        function autoWrapMath(text) {
+            if (!text) return '';
+            let s = String(text);
+
+            // 简单处理幂次 x^2 -> x^{2} 并用 LaTeX 包裹
+            s = s.replace(/([a-zA-Z])\^(\d+)/g, (m, v, p) => `${v}^{${p}}`);
+
+            // 分数 a/b -> \frac{a}{b}
+            s = s.replace(/-?\d+\/\d+/g, (m) => {
+                const negative = m.startsWith('-');
+                const core = negative ? m.slice(1) : m;
+                const [num, den] = core.split('/');
+                const frac = `\\frac{${num}}{${den}}`;
+                return (negative ? '-' : '') + frac;
+            });
+
+            // 将文本变量 x、x^{n} 用 $$ 包裹为展示式（便于显示多项式）
+            return `$$${s}$$`;
+        }
+
+        // 显示计算步骤（支持 LaTeX 描述与矩阵/向量的 LaTeX 渲染）
+        function displaySteps(steps) {
+            const container = document.getElementById('steps-container');
+            container.innerHTML = '';
+
+            if (!steps || steps.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center">没有可用的计算步骤</p>';
+                return;
+            }
+
+            const ol = document.createElement('ol');
+            ol.className = 'list-decimal pl-6 space-y-4';
+
+            steps.forEach(step => {
+                const li = document.createElement('li');
+                const wrapper = document.createElement('div');
+                wrapper.className = 'text-gray-700';
+
+                // 描述文字（自动包装为 LaTeX，除非已包含标记）
+                let desc = (typeof step === 'object' && step.description) ? String(step.description) : String(step || '');
+                desc = desc.replace(/\n/g, '<br>');
+                if (!containsLatexMarkers(desc)) {
+                    desc = autoWrapMath(desc);
+                }
+
+                // 描述区域
+                const descDiv = document.createElement('div');
+                descDiv.className = 'mb-2';
+                descDiv.innerHTML = desc;
+                wrapper.appendChild(descDiv);
+
+                // 若 step.matrix 存在，优先用 matrixToLatex 渲染
+                if (step && step.matrix) {
+                    const matrixHtmlWrap = document.createElement('div');
+                    matrixHtmlWrap.className = 'overflow-x-auto flex justify-center mb-2';
+
+                    try {
+                        // 若 matrix 是单行向量，优先使用 vectorToLatex
+                        let latexHtml = '';
+                        if (Array.isArray(step.matrix) && step.matrix.length === 1 && Array.isArray(step.matrix[0])) {
+                            latexHtml = matrixOperations.vectorToLatex(step.matrix[0]);
+                        } else {
+                            latexHtml = matrixOperations.matrixToLatex(step.matrix);
+                        }
+                        matrixHtmlWrap.innerHTML = latexHtml;
+                    } catch (e) {
+                        matrixHtmlWrap.innerHTML = `<pre class="text-sm text-gray-600">${JSON.stringify(step.matrix)}</pre>`;
+                    }
+                    wrapper.appendChild(matrixHtmlWrap);
+                }
+
+                li.appendChild(wrapper);
+                ol.appendChild(li);
+            });
+
+            container.appendChild(ol);
+
+            // 触发 MathJax 渲染
+            try {
+                if (window.MathJax && MathJax.typesetPromise) {
+                    MathJax.typesetPromise();
+                }
+            } catch (e) {
+                console.warn('MathJax typeset failed:', e);
+            }
+        }
+
+        // 计算按钮：使用 calculateCharacteristicPolynomial 的返回对象，直接显示 LaTeX 字段
+        document.getElementById('calculate-btn').addEventListener('click', () => {
+            hideError();
+
+            try {
+                const matrix = readMatrixInput();
+                const result = matrixOperations.calculateCharacteristicPolynomial(matrix);
+
+                // 如果有 LaTeX 字段，优先展示
+                displayResult(result);
+                displaySteps(result.steps);
+
+                // 显示结果区域
+                const resultSection = document.getElementById('result-section');
+                resultSection.classList.remove('hidden');
+
+            } catch (error) {
+                displayError(error.message);
+            }
+        });
+        
+        // 清空输入按钮点击事件
+        document.getElementById('clear-btn').addEventListener('click', () => {
+            hideError();
+            // 清空所有输入框
+            for (let i = 0; i < matrixSize; i++) {
+                for (let j = 0; j < matrixSize; j++) {
+                    const input = document.getElementById(`matrix-a-${i}-${j}`);
+                    if (input) {
+                        input.value = '';
+                    }
+                }
+            }
+            
+            // 隐藏结果区域
+            const resultSection = document.getElementById('result-section');
+            resultSection.classList.add('hidden');
+        });
+        
+        // 绑定按钮与选择器事件（确保生成矩阵与尺寸同步）
+        document.getElementById('generate-matrix').addEventListener('click', (e) => {
+            e.preventDefault();
+            generateMatrixInput();
+        });
+
+        // 当选择矩阵大小变化时自动生成（便捷）
+        document.getElementById('matrix-size').addEventListener('change', (e) => {
+            matrixSize = parseInt(e.target.value, 10) || 3;
+            matrixSize = Math.min(6, Math.max(1, matrixSize));
+            generateMatrixInput();
+        });
+
+        // 页面加载时生成默认矩阵
+        window.addEventListener('load', () => {
+            // 确保下拉与变量一致
+            const sel = document.getElementById('matrix-size');
+            if (sel) {
+                matrixSize = parseInt(sel.value, 10) || 3;
+            }
+            generateMatrixInput();
+        });
+    </script>
+</body>
+</html>
